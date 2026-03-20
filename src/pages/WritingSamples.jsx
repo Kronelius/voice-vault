@@ -8,7 +8,7 @@ export default function WritingSamples() {
   const { data: samples, loading, error, refetch } = useSupabaseQuery('writing_samples', {
     orderBy: 'created_at',
   })
-  const { upsert, saving } = useSupabaseMutation('writing_samples')
+  const { upsert, remove, saving } = useSupabaseMutation('writing_samples')
 
   const [selectedId, setSelectedId] = useState(null)
   const [editState, setEditState] = useState(null)
@@ -145,20 +145,32 @@ export default function WritingSamples() {
                 className="w-full px-3 py-2 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] text-sm"
               />
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-between gap-2">
               <button
-                onClick={() => { setSelectedId(null); setEditState(null) }}
-                className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-sans"
+                onClick={async () => {
+                  if (!window.confirm('Delete this sample? This cannot be undone.')) return
+                  const ok = await remove(selectedId)
+                  if (ok) { setSelectedId(null); setEditState(null); refetch() }
+                }}
+                className="px-3 py-1.5 text-sm text-[var(--error)] hover:bg-[#E04B5A15] rounded-md transition-colors font-sans"
               >
-                Cancel
+                Delete
               </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="px-4 py-1.5 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:bg-[var(--accent-hover)] transition-all duration-200 disabled:opacity-50 font-sans"
-              >
-                {saving ? 'Saving...' : 'Save'}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setSelectedId(null); setEditState(null) }}
+                  className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-sans"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="px-4 py-1.5 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:bg-[var(--accent-hover)] transition-all duration-200 disabled:opacity-50 font-sans"
+                >
+                  {saving ? 'Saving...' : 'Save'}
+                </button>
+              </div>
             </div>
           </div>
 

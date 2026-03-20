@@ -9,7 +9,14 @@ export default function ContentList() {
   const { data: content, loading, error, refetch } = useSupabaseQuery('generated_content', {
     orderBy: 'updated_at',
   })
-  const { insert } = useSupabaseMutation('generated_content')
+  const { insert, remove } = useSupabaseMutation('generated_content')
+
+  const handleDelete = async (e, id) => {
+    e.stopPropagation()
+    if (!window.confirm('Delete this content? This cannot be undone.')) return
+    const ok = await remove(id)
+    if (ok) refetch()
+  }
 
   const handleCreate = async () => {
     const result = await insert({
@@ -103,6 +110,13 @@ export default function ContentList() {
                   <span className="text-xs text-[var(--text-tertiary)]">
                     {formatRelativeDate(item.updated_at || item.created_at)}
                   </span>
+                  <button
+                    onClick={(e) => handleDelete(e, item.id)}
+                    className="text-xs text-[var(--text-tertiary)] hover:text-[var(--error)] transition-colors ml-2"
+                    title="Delete"
+                  >
+                    ✕
+                  </button>
                 </div>
               </div>
             </button>
