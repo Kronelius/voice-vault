@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+/* === Design System Custom Properties === */
+:root {
+  --bg-primary: #FAFAF7;
+  --bg-surface: #F5F4F0;
+  --bg-hover: #ECEAE4;
+  --bg-card: #FFFFFF;
+  --border: #E2E0DA;
+  --text-primary: #1C1915;
+  --text-secondary: #5C5852;
+  --text-tertiary: #8A857D;
+  --accent: #9E6B3A;
+  --accent-muted: rgba(158, 107, 58, 0.1);
+  --secondary: #3D5A80;
+  --success: #4A7C59;
+  --error: #7C4A4A;
+
+  --font-heading: 'DM Sans', system-ui, sans-serif;
+  --font-body: 'Source Sans 3', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+.dark {
+  --bg-primary: #1C1915;
+  --bg-surface: #252220;
+  --bg-hover: #302D29;
+  --bg-card: #2A2725;
+  --border: #3D3A36;
+  --text-primary: #F0EDE8;
+  --text-secondary: #A8A39B;
+  --text-tertiary: #6B6560;
+  --accent: #C48A52;
+  --accent-muted: rgba(196, 138, 82, 0.15);
+}
+
+/* === Base Styles === */
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-heading { font-family: var(--font-heading); }
+.font-sans { font-family: var(--font-body); }
+.font-mono { font-family: var(--font-mono); }
+
+/* === Scrollbar === */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* === Markdown Editor Overrides === */
+.w-md-editor {
+  --color-canvas-default: var(--bg-card) !important;
+  --color-fg-default: var(--text-primary) !important;
+  --color-border-default: var(--border) !important;
+  background-color: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  font-family: var(--font-body) !important;
+}
+.w-md-editor-text-pre > code,
+.w-md-editor-text-input {
+  font-family: var(--font-mono) !important;
+  font-size: 14px !important;
+}
+.wmde-markdown {
+  font-family: var(--font-body) !important;
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+}
