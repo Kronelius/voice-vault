@@ -113,3 +113,17 @@ select {
   background-color: transparent !important;
   color: var(--text-primary) !important;
 }
+
+/* === Lab Preview Markdown Styles === */
+.lab-preview h1 { font-size: 1.75em; font-weight: 700; margin: 0.6em 0 0.4em; font-family: var(--font-heading); color: var(--text-primary); }
+.lab-preview h2 { font-size: 1.4em; font-weight: 600; margin: 0.5em 0 0.3em; font-family: var(--font-heading); color: var(--text-primary); }
+.lab-preview h3 { font-size: 1.15em; font-weight: 600; margin: 0.4em 0 0.2em; font-family: var(--font-heading); color: var(--text-primary); }
+.lab-preview h4, .lab-preview h5, .lab-preview h6 { font-size: 1em; font-weight: 600; margin: 0.3em 0 0.2em; font-family: var(--font-heading); }
+.lab-preview p { margin: 0.5em 0; line-height: 1.7; color: var(--text-primary); }
+.lab-preview ul, .lab-preview ol { margin: 0.5em 0; padding-left: 1.5em; }
+.lab-preview li { margin: 0.2em 0; line-height: 1.6; }
+.lab-preview blockquote { border-left: 3px solid var(--accent); padding-left: 1em; margin: 0.5em 0; color: var(--text-secondary); }
+.lab-preview code { font-family: var(--font-mono); background: var(--bg-hover); padding: 0.15em 0.3em; border-radius: 3px; font-size: 0.9em; }
+.lab-preview strong { font-weight: 700; }
+.lab-preview em { font-style: italic; }
+.lab-preview hr { border: none; border-top: 1px solid var(--border); margin: 1em 0; }

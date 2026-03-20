@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
+import rehypeRaw from 'rehype-raw'
 import { supabase } from '../lib/supabase'
 import { analyzeReadability } from '../lib/readability'
-import { computeDiff } from '../lib/diff'
+import { computeDiffMarkdown } from '../lib/diff'
 import { LAB_STATUS_COLORS, formatEnumLabel } from '../lib/constants'
 import Badge from '../components/ui/Badge'
 import Spinner from '../components/ui/Spinner'
@@ -76,10 +78,12 @@ export default function ContentLab() {
     }
   }
 
-  /** Compute diff between original and lab text */
-  const diffOps = useMemo(() => {
-    if (!content) return []
-    return computeDiff(content.body_markdown || '', labText)
+  /** Compute diff markdown — original vs lab with inline HTML diff markers */
+  const diffMarkdown = useMemo(() => {
+    if (!content) return ''
+    const orig = content.body_markdown || ''
+    if (labText === orig) return labText
+    return computeDiffMarkdown(orig, labText)
   }, [content?.body_markdown, labText])
 
   const handleSaveDraft = async () => {
@@ -253,14 +257,12 @@ export default function ContentLab() {
           </div>
           <div
             ref={previewRef}
-            className="flex-1 w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] text-sm leading-relaxed overflow-y-auto"
+            className="flex-1 w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] text-sm leading-relaxed overflow-y-auto lab-preview"
             style={{ minHeight: 560 }}
           >
-            {diffOps.length === 0 ? (
-              <span className="text-[var(--text-tertiary)] italic">No changes yet. Start editing on the left.</span>
-            ) : (
-              <DiffDisplay ops={diffOps} />
-            )}
+            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+              {diffMarkdown}
+            </ReactMarkdown>
           </div>
         </div>
 
@@ -312,42 +314,6 @@ export default function ContentLab() {
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-/** Renders the diff operations as styled inline spans */
-function DiffDisplay({ ops }) {
-  return (
-    <div className="whitespace-pre-wrap font-sans text-[var(--text-primary)]">
-      {ops.map((op, i) => {
-        if (op.type === 'equal') {
-          return <span key={i}>{op.text} </span>
-        }
-        if (op.type === 'delete') {
-          return (
-            <span
-              key={i}
-              className="line-through font-bold bg-[#E04B5A15] rounded px-0.5"
-              style={{ color: '#E04B5A' }}
-            >
-              {op.text}
-            </span>
-          )
-        }
-        if (op.type === 'insert') {
-          return (
-            <span
-              key={i}
-              className="font-bold"
-              style={{ color: '#E04B5A' }}
-            >
-              {op.text}{' '}
-            </span>
-          )
-        }
-        return null
-      })}
     </div>
   )
 }
