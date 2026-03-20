@@ -63,7 +63,7 @@ export default function VoiceProfile() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-4 py-2 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:opacity-90 disabled:opacity-50 font-sans"
+            className="px-4 py-2 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:bg-[var(--accent-hover)] transition-all duration-200 disabled:opacity-50 font-sans"
           >
             {saving ? 'Saving...' : 'Save All'}
           </button>
@@ -227,8 +227,8 @@ export default function VoiceProfile() {
 
 function Section({ title, children }) {
   return (
-    <section>
-      <h2 className="text-sm font-semibold font-heading text-[var(--text-primary)] mb-3 uppercase tracking-wide">
+    <section className="p-4 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-sm">
+      <h2 className="text-sm font-semibold font-heading text-[var(--accent)] mb-3 uppercase tracking-wide">
         {title}
       </h2>
       {children}
@@ -256,7 +256,7 @@ function VocabSection({ title, items, onChange, strikethrough = false }) {
             key={i}
             className={`inline-flex px-2 py-0.5 rounded text-xs font-sans ${
               strikethrough
-                ? 'bg-[#7C4A4A22] text-[var(--error)] line-through'
+                ? 'bg-[#E04B5A18] text-[var(--error)] line-through'
                 : 'bg-[var(--accent-muted)] text-[var(--accent)]'
             }`}
           >

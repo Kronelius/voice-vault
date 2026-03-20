@@ -129,7 +129,7 @@ export default function ContentEditor() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-4 py-2 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 font-sans"
+          className="px-4 py-2 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:bg-[var(--accent-hover)] transition-all duration-200 hover:shadow-md disabled:opacity-50 font-sans"
         >
           {saving ? 'Saving...' : 'Save'}
         </button>
@@ -192,7 +192,7 @@ export default function ContentEditor() {
 
         {/* Readability Sidebar */}
         <div className="w-56 shrink-0 space-y-4">
-          <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-card)]">
+          <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-sm">
             <h3 className="text-xs font-semibold font-heading text-[var(--text-primary)] mb-2 uppercase tracking-wide">
               Readability
             </h3>
@@ -233,7 +233,7 @@ export default function ContentEditor() {
           </div>
 
           {/* Status badge */}
-          <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-card)]">
+          <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-sm">
             <h3 className="text-xs font-semibold font-heading text-[var(--text-primary)] mb-2 uppercase tracking-wide">
               Status
             </h3>
@@ -248,10 +248,10 @@ export default function ContentEditor() {
       </div>
 
       {/* SEO Panel */}
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)]">
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-sm">
         <button
           onClick={() => setSeoOpen(!seoOpen)}
-          className="w-full flex items-center justify-between px-4 py-3 text-sm font-heading font-semibold text-[var(--text-primary)]"
+          className="w-full flex items-center justify-between px-4 py-3 text-sm font-heading font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors duration-200 rounded-lg"
         >
           SEO Metadata
           <span className="text-[var(--text-tertiary)]">{seoOpen ? '▾' : '▸'}</span>

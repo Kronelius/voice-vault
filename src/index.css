@@ -2,19 +2,25 @@
 
 /* === Design System Custom Properties === */
 :root {
-  --bg-primary: #FAFAF7;
-  --bg-surface: #F5F4F0;
-  --bg-hover: #ECEAE4;
+  --bg-primary: #F8F9FC;
+  --bg-surface: #F0F1F6;
+  --bg-hover: #E6E8F0;
   --bg-card: #FFFFFF;
-  --border: #E2E0DA;
-  --text-primary: #1C1915;
-  --text-secondary: #5C5852;
-  --text-tertiary: #8A857D;
-  --accent: #9E6B3A;
-  --accent-muted: rgba(158, 107, 58, 0.1);
-  --secondary: #3D5A80;
-  --success: #4A7C59;
-  --error: #7C4A4A;
+  --border: #D8DBE5;
+  --text-primary: #1A1D2E;
+  --text-secondary: #4A4F65;
+  --text-tertiary: #7B8098;
+  --accent: #6C5CE7;
+  --accent-hover: #5A4BD6;
+  --accent-muted: rgba(108, 92, 231, 0.1);
+  --secondary: #3D7AED;
+  --success: #2EAD6A;
+  --error: #E04B5A;
+
+  --shadow-sm: 0 1px 2px rgba(26, 29, 46, 0.05);
+  --shadow-md: 0 4px 12px rgba(26, 29, 46, 0.08);
+  --shadow-lg: 0 8px 24px rgba(26, 29, 46, 0.1);
+  --shadow-glow: 0 0 0 3px var(--accent-muted);
 
   --font-heading: 'DM Sans', system-ui, sans-serif;
   --font-body: 'Source Sans 3', system-ui, sans-serif;
@@ -22,16 +28,25 @@
 }
 
 .dark {
-  --bg-primary: #1C1915;
-  --bg-surface: #252220;
-  --bg-hover: #302D29;
-  --bg-card: #2A2725;
-  --border: #3D3A36;
-  --text-primary: #F0EDE8;
-  --text-secondary: #A8A39B;
-  --text-tertiary: #6B6560;
-  --accent: #C48A52;
-  --accent-muted: rgba(196, 138, 82, 0.15);
+  --bg-primary: #13141F;
+  --bg-surface: #1A1B2B;
+  --bg-hover: #242538;
+  --bg-card: #1E1F30;
+  --border: #2E3048;
+  --text-primary: #ECEDF4;
+  --text-secondary: #9A9DB5;
+  --text-tertiary: #5E6180;
+  --accent: #8B7FF5;
+  --accent-hover: #7A6DE8;
+  --accent-muted: rgba(139, 127, 245, 0.15);
+  --secondary: #5B92F5;
+  --success: #3BC97A;
+  --error: #F06070;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 0 3px var(--accent-muted);
 }
 
 /* === Base Styles === */
@@ -47,6 +62,31 @@ body {
 .font-heading { font-family: var(--font-heading); }
 .font-sans { font-family: var(--font-body); }
 .font-mono { font-family: var(--font-mono); }
+
+/* === Interactive Element Styles === */
+input[type="text"],
+input[type="search"],
+textarea,
+select {
+  cursor: text;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+input[type="text"]:hover,
+input[type="search"]:hover,
+textarea:hover {
+  border-color: var(--accent) !important;
+}
+input[type="text"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: var(--shadow-glow);
+  outline: none;
+}
+select {
+  cursor: pointer;
+}
 
 /* === Scrollbar === */
 ::-webkit-scrollbar { width: 6px; height: 6px; }

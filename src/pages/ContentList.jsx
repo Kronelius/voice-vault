@@ -35,7 +35,7 @@ export default function ContentList() {
         </div>
         <button
           onClick={handleCreate}
-          className="px-4 py-2 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:opacity-90 transition-opacity font-sans"
+          className="px-4 py-2 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:bg-[var(--accent-hover)] transition-all duration-200 hover:shadow-md font-sans"
         >
           + New Post
         </button>
@@ -48,7 +48,10 @@ export default function ContentList() {
             <button
               key={item.id}
               onClick={() => navigate(`/content/${item.id}`)}
-              className="text-left w-full p-4 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)] transition-colors"
+              className="text-left w-full p-4 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+              style={{ boxShadow: 'var(--shadow-sm)' }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = 'var(--shadow-sm)'}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
@@ -74,12 +77,12 @@ export default function ContentList() {
                     <span>{item.word_count.toLocaleString()} words</span>
                   )}
                   {item.fk_grade_actual != null && (
-                    <span className={item.readability_pass ? 'text-[#4A7C59]' : 'text-[#7C4A4A]'}>
+                    <span className={item.readability_pass ? 'text-[#2EAD6A]' : 'text-[#E04B5A]'}>
                       FK {item.fk_grade_actual}
                     </span>
                   )}
                   {item.contraction_rate_actual != null && (
-                    <span className={item.contraction_pass ? 'text-[#4A7C59]' : 'text-[#7C4A4A]'}>
+                    <span className={item.contraction_pass ? 'text-[#2EAD6A]' : 'text-[#E04B5A]'}>
                       {item.contraction_rate_actual}% contr.
                     </span>
                   )}

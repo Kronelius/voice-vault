@@ -60,10 +60,10 @@ export default function WritingSamples() {
               <button
                 key={sample.id}
                 onClick={() => handleSelect(sample)}
-                className={`w-full text-left p-4 rounded-lg border transition-colors ${
+                className={`w-full text-left p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
                   isSelected
-                    ? 'border-[var(--accent)] bg-[var(--accent-muted)]'
-                    : 'border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)]'
+                    ? 'border-[var(--accent)] bg-[var(--accent-muted)] shadow-md'
+                    : 'border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:-translate-y-0.5 hover:shadow-md shadow-sm'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -94,7 +94,7 @@ export default function WritingSamples() {
       {/* Detail panel */}
       {selected && editState && (
         <div className="w-96 shrink-0 space-y-4 sticky top-6 self-start">
-          <div className="p-4 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] space-y-3">
+          <div className="p-4 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-md space-y-3">
             <h2 className="text-sm font-semibold font-heading text-[var(--text-primary)]">Edit Metadata</h2>
             <div>
               <label className="block text-xs text-[var(--text-tertiary)] mb-1 font-sans">Title</label>
@@ -155,7 +155,7 @@ export default function WritingSamples() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-4 py-1.5 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:opacity-90 disabled:opacity-50 font-sans"
+                className="px-4 py-1.5 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:bg-[var(--accent-hover)] transition-all duration-200 disabled:opacity-50 font-sans"
               >
                 {saving ? 'Saving...' : 'Save'}
               </button>
@@ -163,7 +163,7 @@ export default function WritingSamples() {
           </div>
 
           {/* Full text preview */}
-          <div className="p-4 rounded-lg border border-[var(--border)] bg-[var(--bg-card)]">
+          <div className="p-4 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-md">
             <h2 className="text-sm font-semibold font-heading text-[var(--text-primary)] mb-2">Full Text</h2>
             <div className="max-h-96 overflow-y-auto text-sm text-[var(--text-secondary)] whitespace-pre-wrap leading-relaxed">
               {selected.full_text || 'No text available.'}

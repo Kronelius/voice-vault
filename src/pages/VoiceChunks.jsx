@@ -107,7 +107,7 @@ export default function VoiceChunks() {
           const toneColor = TONE_COLORS[chunk.tone] || TONE_COLORS.analytical
 
           return (
-            <div key={chunk.id} className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
+            <div key={chunk.id} className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
               <button
                 onClick={() => handleExpand(chunk)}
                 className="w-full text-left px-4 py-3 hover:bg-[var(--bg-hover)] transition-colors"
@@ -231,7 +231,7 @@ export default function VoiceChunks() {
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="px-4 py-1.5 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:opacity-90 disabled:opacity-50 font-sans"
+                      className="px-4 py-1.5 bg-[var(--accent)] text-white text-sm font-medium rounded-md hover:bg-[var(--accent-hover)] transition-all duration-200 disabled:opacity-50 font-sans"
                     >
                       {saving ? 'Saving...' : 'Save'}
                     </button>
