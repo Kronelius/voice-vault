@@ -55,9 +55,14 @@ export default function ContentList() {
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-semibold font-heading text-[var(--text-primary)] truncate">
-                    {item.title || 'Untitled'}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-semibold font-heading text-[var(--text-primary)] truncate">
+                      {item.title || 'Untitled'}
+                    </h3>
+                    <span className="text-xs font-mono text-[var(--accent)] bg-[var(--accent-muted)] px-1.5 py-0.5 rounded shrink-0">
+                      v{item.version || 1}.0
+                    </span>
+                  </div>
                   <div className="flex items-center gap-3 mt-2 flex-wrap">
                     <Badge label={formatEnumLabel(item.status)} bg={statusColor.bg} text={statusColor.text} />
                     {item.target_keyword && (
@@ -72,20 +77,25 @@ export default function ContentList() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-4 shrink-0 text-xs font-mono text-[var(--text-secondary)]">
-                  {item.word_count > 0 && (
-                    <span>{item.word_count.toLocaleString()} words</span>
-                  )}
-                  {item.fk_grade_actual != null && (
-                    <span className={item.readability_pass ? 'text-[#2EAD6A]' : 'text-[#E04B5A]'}>
-                      FK {item.fk_grade_actual}
-                    </span>
-                  )}
-                  {item.contraction_rate_actual != null && (
-                    <span className={item.contraction_pass ? 'text-[#2EAD6A]' : 'text-[#E04B5A]'}>
-                      {item.contraction_rate_actual}% contr.
-                    </span>
-                  )}
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
+                  <div className="flex items-center gap-4 text-xs font-mono text-[var(--text-secondary)]">
+                    {item.word_count > 0 && (
+                      <span>{item.word_count.toLocaleString()} words</span>
+                    )}
+                    {item.fk_grade_actual != null && (
+                      <span className={item.readability_pass ? 'text-[#2EAD6A]' : 'text-[#E04B5A]'}>
+                        FK {item.fk_grade_actual}
+                      </span>
+                    )}
+                    {item.contraction_rate_actual != null && (
+                      <span className={item.contraction_pass ? 'text-[#2EAD6A]' : 'text-[#E04B5A]'}>
+                        {item.contraction_rate_actual}% contr.
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs text-[var(--text-tertiary)]">
+                    {formatRelativeDate(item.updated_at || item.created_at)}
+                  </span>
                 </div>
               </div>
             </button>
@@ -100,4 +110,24 @@ export default function ContentList() {
       )}
     </div>
   )
+}
+
+/**
+ * Format a timestamp into a human-readable relative date.
+ * e.g. "Just now", "5 min ago", "3 hours ago", "Mar 15, 2026"
+ */
+function formatRelativeDate(dateStr) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diffMs = now - date
+  const diffMin = Math.floor(diffMs / 60000)
+  const diffHrs = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMin < 1) return 'Just now'
+  if (diffMin < 60) return `${diffMin}m ago`
+  if (diffHrs < 24) return `${diffHrs}h ago`
+  if (diffDays < 7) return `${diffDays}d ago`
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
