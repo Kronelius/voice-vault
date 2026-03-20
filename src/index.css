@@ -63,7 +63,39 @@ body {
 .font-sans { font-family: var(--font-body); }
 .font-mono { font-family: var(--font-mono); }
 
-/* === Interactive Element Styles === */
+/* === Button & Clickable Element Styles === */
+button,
+a,
+[role="button"],
+summary,
+select,
+label[for],
+.cursor-pointer {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+button:hover:not(:disabled),
+a:hover,
+[role="button"]:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+button:active:not(:disabled),
+a:active,
+[role="button"]:active {
+  transform: translateY(0px) scale(0.98);
+}
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* NavLink / sidebar items should not translateY — handled by their own classes */
+nav a:hover {
+  transform: none;
+  filter: none;
+}
+
+/* === Input & Textarea Styles === */
 input[type="text"],
 input[type="search"],
 textarea,
@@ -86,6 +118,12 @@ select:focus {
 }
 select {
   cursor: pointer;
+  /* Override text cursor from input group */
+}
+select:hover {
+  border-color: var(--accent) !important;
+  filter: brightness(1.02);
+  transform: none;
 }
 
 /* === Scrollbar === */
