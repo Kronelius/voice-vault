@@ -12,25 +12,25 @@ export default function Sidebar() {
   const { dark, toggle } = useTheme()
 
   return (
-    <aside className="w-56 shrink-0 h-screen sticky top-0 flex flex-col border-r border-[var(--border)] bg-[var(--bg-surface)]" style={{ boxShadow: 'var(--shadow-md)' }}>
-      <div className="px-4 py-5 border-b border-[var(--border)]">
-        <h1 className="text-lg font-bold font-heading text-[var(--accent)]">
+    <aside className="w-56 shrink-0 h-screen sticky top-0 flex flex-col border-r-[3px] border-[var(--border-dark)] bg-[var(--bg-surface)]">
+      <div className="px-4 py-5 border-b-[2px] border-dashed border-[var(--border)]">
+        <h1 className="text-xl font-bold font-heading text-[var(--accent)]" style={{ letterSpacing: '-0.02em' }}>
           Voice Vault
         </h1>
-        <p className="text-xs text-[var(--text-tertiary)] font-sans mt-0.5">Content Management</p>
+        <p className="text-xs text-[var(--text-tertiary)] font-sans mt-0.5 italic">Content Management</p>
       </div>
 
-      <nav className="flex-1 px-2 py-3 space-y-0.5">
+      <nav className="flex-1 px-2 py-3 space-y-1">
         {NAV_ITEMS.map(item => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.to === '/'}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-sans transition-all duration-200 ${
+              `flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans transition-all duration-200 ${
                 isActive
-                  ? 'bg-[var(--accent-muted)] text-[var(--accent)] font-medium shadow-sm'
-                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] hover:translate-x-0.5'
+                  ? 'sketch-card font-semibold text-[var(--accent)] bg-[var(--note-orange)]'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] rounded-md'
               }`
             }
           >
@@ -40,10 +40,10 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="px-3 py-3 border-t border-[var(--border)]">
+      <div className="px-3 py-3 border-t-[2px] border-dashed border-[var(--border)]">
         <button
           onClick={toggle}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-all duration-200 font-sans"
+          className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-all duration-200 font-sans"
         >
           {dark ? '☀️' : '🌙'}
           {dark ? 'Light Mode' : 'Dark Mode'}

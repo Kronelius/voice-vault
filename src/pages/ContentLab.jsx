@@ -163,15 +163,14 @@ export default function ContentLab() {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-3 flex-wrap">
-        <button
-          onClick={() => navigate(`/content/${id}`)}
-          className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-sans"
-        >
+        <button onClick={() => navigate(`/content/${id}`)}
+          className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent)] font-sans font-semibold">
           &larr; Back to Editor
         </button>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-heading font-semibold text-[var(--text-primary)]">Lab</span>
-          <span className="text-xs font-mono text-[var(--accent)] bg-[var(--accent-muted)] px-1.5 py-0.5 rounded">
+          <span className="text-sm font-heading font-bold text-[var(--text-primary)]">Lab</span>
+          <span className="text-xs font-mono text-[var(--accent)] bg-[var(--accent-muted)] px-1.5 py-0.5"
+            style={{ border: '1.5px solid var(--accent)', borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px' }}>
             v{content.version || 1}.0
           </span>
           {content.lab_status && (
@@ -180,33 +179,17 @@ export default function ContentLab() {
         </div>
         <div className="flex-1" />
         <span className="text-xs text-[var(--text-tertiary)]">{saveMsg}</span>
-        <button onClick={handleDiscard} className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--error)] transition-colors font-sans">
-          Discard
-        </button>
-        <button
-          onClick={handleSaveDraft}
-          disabled={saving}
-          className="px-4 py-2 border border-[var(--border)] text-[var(--text-primary)] text-sm font-medium rounded-md hover:bg-[var(--bg-hover)] transition-all duration-200 disabled:opacity-50 font-sans"
-        >
+        <button onClick={handleDiscard} className="sketch-btn sketch-btn-danger px-3 py-1.5 text-sm">Discard</button>
+        <button onClick={handleSaveDraft} disabled={saving} className="sketch-btn sketch-btn-outline px-4 py-2 text-sm">
           {saving ? 'Saving...' : 'Save Draft'}
         </button>
         {content.lab_status !== 'analyzed' && (
-          <button
-            onClick={handleRequestReview}
-            disabled={saving || !hasChanges}
-            className="px-4 py-2 bg-[var(--secondary)] text-white text-sm font-medium rounded-md hover:opacity-90 transition-all duration-200 disabled:opacity-50 font-sans"
-          >
-            Request Review
-          </button>
+          <button onClick={handleRequestReview} disabled={saving || !hasChanges}
+            className="sketch-btn sketch-btn-blue px-4 py-2 text-sm">Request Review</button>
         )}
         {content.lab_status === 'analyzed' && (
-          <button
-            onClick={handleCommit}
-            disabled={committing}
-            className="px-4 py-2 bg-[var(--success)] text-white text-sm font-medium rounded-md hover:opacity-90 transition-all duration-200 disabled:opacity-50 font-sans"
-          >
-            {committing ? 'Committing...' : 'Commit Changes'}
-          </button>
+          <button onClick={handleCommit} disabled={committing}
+            className="sketch-btn sketch-btn-green px-4 py-2 text-sm">{committing ? 'Committing...' : 'Commit Changes'}</button>
         )}
       </div>
 
@@ -217,7 +200,7 @@ export default function ContentLab() {
 
       {/* Analysis notes */}
       {content.lab_notes && (
-        <div className="p-4 rounded-lg border border-[var(--success)] bg-[#2EAD6A10]">
+        <div className="sketch-card p-4" style={{ backgroundColor: 'var(--note-green)' }}>
           <h3 className="text-xs font-semibold font-heading text-[var(--success)] mb-2 uppercase tracking-wide">
             Analysis Notes
           </h3>
@@ -245,7 +228,7 @@ export default function ContentLab() {
             onChange={handleTextChange}
             onScroll={handleScroll}
             spellCheck
-            className="flex-1 w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-primary)] text-sm font-mono leading-relaxed resize-none focus:border-[var(--accent)] focus:shadow-[var(--shadow-glow)] focus:outline-none transition-all duration-200"
+            className="sketch-input flex-1 w-full px-4 py-3 text-sm font-mono leading-relaxed resize-none"
             style={{ minHeight: 560 }}
           />
         </div>
@@ -257,8 +240,8 @@ export default function ContentLab() {
           </div>
           <div
             ref={previewRef}
-            className="flex-1 w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] text-sm leading-relaxed overflow-y-auto lab-preview"
-            style={{ minHeight: 560 }}
+            className="sketch-card-alt flex-1 w-full px-4 py-3 text-sm leading-relaxed overflow-y-auto lab-preview"
+            style={{ minHeight: 560, backgroundColor: 'var(--bg-card)' }}
           >
             <ReactMarkdown rehypePlugins={[rehypeRaw]}>
               {diffMarkdown}
@@ -269,7 +252,7 @@ export default function ContentLab() {
         {/* Right: Metrics sidebar */}
         <div className="w-56 shrink-0 space-y-4">
           {labMetrics && originalMetrics && (
-            <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-sm">
+            <div className="sketch-card p-3" style={{ backgroundColor: 'var(--note-green)' }}>
               <h3 className="text-xs font-semibold font-heading text-[var(--accent)] mb-2 uppercase tracking-wide">
                 Metrics
               </h3>
@@ -284,7 +267,7 @@ export default function ContentLab() {
             </div>
           )}
 
-          <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-sm">
+          <div className="sketch-card p-3" style={{ backgroundColor: 'var(--note-blue)' }}>
             <h3 className="text-xs font-semibold font-heading text-[var(--text-primary)] mb-2 uppercase tracking-wide">
               Lab Status
             </h3>
@@ -297,7 +280,7 @@ export default function ContentLab() {
           </div>
 
           {/* Legend */}
-          <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-sm">
+          <div className="sketch-card p-3" style={{ backgroundColor: 'var(--note-yellow)' }}>
             <h3 className="text-xs font-semibold font-heading text-[var(--text-primary)] mb-2 uppercase tracking-wide">
               Legend
             </h3>

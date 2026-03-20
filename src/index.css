@@ -1,51 +1,79 @@
 @import "tailwindcss";
 
-/* === Design System Custom Properties === */
+/* === Analog Warmth Design System === */
 :root {
-  --bg-primary: #F8F9FC;
-  --bg-surface: #F0F1F6;
-  --bg-hover: #E6E8F0;
-  --bg-card: #FFFFFF;
-  --border: #D8DBE5;
-  --text-primary: #1A1D2E;
-  --text-secondary: #4A4F65;
-  --text-tertiary: #7B8098;
-  --accent: #6C5CE7;
-  --accent-hover: #5A4BD6;
-  --accent-muted: rgba(108, 92, 231, 0.1);
-  --secondary: #3D7AED;
-  --success: #2EAD6A;
-  --error: #E04B5A;
+  /* Paper & surface colors */
+  --bg-primary: #F5F0E8;
+  --bg-surface: #EDE7DB;
+  --bg-hover: #E4DCCE;
+  --bg-card: #FBF8F3;
+  --border: #C4B9A5;
+  --border-dark: #8B7E6A;
 
-  --shadow-sm: 0 1px 2px rgba(26, 29, 46, 0.05);
-  --shadow-md: 0 4px 12px rgba(26, 29, 46, 0.08);
-  --shadow-lg: 0 8px 24px rgba(26, 29, 46, 0.1);
+  /* Ink colors */
+  --text-primary: #2C2418;
+  --text-secondary: #5C4F3C;
+  --text-tertiary: #8B7E6A;
+
+  /* Accent — terracotta + electric blue pop */
+  --accent: #C0623A;
+  --accent-hover: #A8522E;
+  --accent-muted: rgba(192, 98, 58, 0.12);
+  --secondary: #2B7CB5;
+  --secondary-muted: rgba(43, 124, 181, 0.1);
+  --success: #5A8A4A;
+  --error: #B5423A;
+
+  /* Pastel note colors */
+  --note-yellow: #FFF4C2;
+  --note-pink: #FFE0E6;
+  --note-blue: #D6EEFF;
+  --note-green: #D6F0D6;
+  --note-orange: #FFE4CC;
+  --note-purple: #E8DCF5;
+
+  /* Shadows — warmer tones */
+  --shadow-sm: 2px 2px 0px rgba(44, 36, 24, 0.08);
+  --shadow-md: 3px 3px 0px rgba(44, 36, 24, 0.1);
+  --shadow-lg: 5px 5px 0px rgba(44, 36, 24, 0.12);
   --shadow-glow: 0 0 0 3px var(--accent-muted);
 
-  --font-heading: 'DM Sans', system-ui, sans-serif;
-  --font-body: 'Source Sans 3', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  /* Typography */
+  --font-heading: 'Fraunces', Georgia, serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 .dark {
-  --bg-primary: #13141F;
-  --bg-surface: #1A1B2B;
-  --bg-hover: #242538;
-  --bg-card: #1E1F30;
-  --border: #2E3048;
-  --text-primary: #ECEDF4;
-  --text-secondary: #9A9DB5;
-  --text-tertiary: #5E6180;
-  --accent: #8B7FF5;
-  --accent-hover: #7A6DE8;
-  --accent-muted: rgba(139, 127, 245, 0.15);
-  --secondary: #5B92F5;
-  --success: #3BC97A;
-  --error: #F06070;
+  --bg-primary: #1E1A14;
+  --bg-surface: #262017;
+  --bg-hover: #33291E;
+  --bg-card: #2A231A;
+  --border: #4A3F30;
+  --border-dark: #6B5D4A;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --text-primary: #F0E8D8;
+  --text-secondary: #B8A88E;
+  --text-tertiary: #7B6D58;
+
+  --accent: #D4784E;
+  --accent-hover: #E08A5E;
+  --accent-muted: rgba(212, 120, 78, 0.15);
+  --secondary: #4A9AD4;
+  --secondary-muted: rgba(74, 154, 212, 0.12);
+  --success: #6FA05C;
+  --error: #D45A52;
+
+  --note-yellow: #3D3520;
+  --note-pink: #3D2028;
+  --note-blue: #1A2D3D;
+  --note-green: #1E331E;
+  --note-orange: #3D2E1A;
+  --note-purple: #2E2338;
+
+  --shadow-sm: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  --shadow-md: 3px 3px 0px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 5px 5px 0px rgba(0, 0, 0, 0.3);
   --shadow-glow: 0 0 0 3px var(--accent-muted);
 }
 
@@ -59,87 +87,183 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Paper texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
 .font-heading { font-family: var(--font-heading); }
 .font-sans { font-family: var(--font-body); }
 .font-mono { font-family: var(--font-mono); }
 
-/* === Button & Clickable Element Styles === */
-button,
-a,
-[role="button"],
-summary,
-select,
-label[for],
-.cursor-pointer {
-  cursor: pointer;
+/* === Sketchy / Hand-drawn Border Utilities === */
+
+/* Wobbly card — the signature "imperfect rectangle" */
+.sketch-card {
+  border: 2.5px solid var(--border-dark);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-md);
   transition: all 0.2s ease;
 }
-button:hover:not(:disabled),
-a:hover,
-[role="button"]:hover {
-  filter: brightness(1.08);
-  transform: translateY(-1px);
+.sketch-card:hover {
+  box-shadow: var(--shadow-lg);
 }
-button:active:not(:disabled),
-a:active,
-[role="button"]:active {
-  transform: translateY(0px) scale(0.98);
+
+/* Slightly different wobble for variety */
+.sketch-card-alt {
+  border: 2.5px solid var(--border-dark);
+  border-radius: 15px 225px 15px 255px / 225px 15px 255px 15px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s ease;
+}
+
+/* Post-it note style cards */
+.note-card {
+  border: 2px solid var(--border-dark);
+  border-radius: 2px 2px 2px 2px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  transition: all 0.2s ease;
+}
+.note-card::before {
+  content: '';
+  position: absolute;
+  top: -3px; left: 12px;
+  width: 30px; height: 12px;
+  background: rgba(44, 36, 24, 0.12);
+  border-radius: 0 0 3px 3px;
+}
+.note-card:hover {
+  transform: rotate(-0.5deg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Sketchy input borders */
+.sketch-input {
+  border: 2px solid var(--border);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  background: var(--bg-card);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.sketch-input:hover {
+  border-color: var(--accent);
+}
+.sketch-input:focus {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
+  outline: none;
+}
+
+/* Sketchy button */
+.sketch-btn {
+  border: 2.5px solid var(--border-dark);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.sketch-btn:hover:not(:disabled) {
+  transform: translateY(-2px) rotate(-0.5deg);
+  box-shadow: var(--shadow-md);
+}
+.sketch-btn:active:not(:disabled) {
+  transform: translateY(0px) rotate(0deg);
+  box-shadow: var(--shadow-sm);
+}
+.sketch-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary filled button */
+.sketch-btn-primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent-hover);
+}
+.sketch-btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+/* Secondary/outline button */
+.sketch-btn-outline {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* Danger button */
+.sketch-btn-danger {
+  color: var(--error);
+  border-color: var(--error);
+  background: transparent;
+}
+.sketch-btn-danger:hover:not(:disabled) {
+  background: var(--note-pink);
+}
+
+/* Blue action button */
+.sketch-btn-blue {
+  background: var(--secondary);
+  color: white;
+  border-color: #1F6A9E;
+}
+
+/* Green action button */
+.sketch-btn-green {
+  background: var(--success);
+  color: white;
+  border-color: #4A7A3C;
+}
+
+/* === Button & Clickable Element Base === */
+button, a, [role="button"], summary, label[for] {
+  cursor: pointer;
 }
 button:disabled {
   cursor: not-allowed;
 }
-
-/* NavLink / sidebar items should not translateY — handled by their own classes */
-nav a:hover {
-  transform: none;
-  filter: none;
+/* Nav links get their own treatment */
+nav a {
+  transition: all 0.2s ease;
 }
 
 /* === Input & Textarea Styles === */
 input[type="text"],
 input[type="search"],
-textarea,
-select {
+textarea {
   cursor: text;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-input[type="text"]:hover,
-input[type="search"]:hover,
-textarea:hover {
-  border-color: var(--accent) !important;
-}
-input[type="text"]:focus,
-input[type="search"]:focus,
-textarea:focus,
-select:focus {
-  border-color: var(--accent) !important;
-  box-shadow: var(--shadow-glow);
-  outline: none;
 }
 select {
   cursor: pointer;
-  /* Override text cursor from input group */
-}
-select:hover {
-  border-color: var(--accent) !important;
-  filter: brightness(1.02);
-  transform: none;
 }
 
 /* === Scrollbar === */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; border: 1px solid var(--border-dark); }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
 
 /* === Markdown Editor Overrides === */
 .w-md-editor {
   --color-canvas-default: var(--bg-card) !important;
   --color-fg-default: var(--text-primary) !important;
-  --color-border-default: var(--border) !important;
+  --color-border-default: var(--border-dark) !important;
   background-color: var(--bg-card) !important;
-  border-color: var(--border) !important;
+  border: 2.5px solid var(--border-dark) !important;
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;
   font-family: var(--font-body) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 .w-md-editor-text-pre > code,
 .w-md-editor-text-input {
@@ -160,8 +284,8 @@ select:hover {
 .lab-preview p { margin: 0.5em 0; line-height: 1.7; color: var(--text-primary); }
 .lab-preview ul, .lab-preview ol { margin: 0.5em 0; padding-left: 1.5em; }
 .lab-preview li { margin: 0.2em 0; line-height: 1.6; }
-.lab-preview blockquote { border-left: 3px solid var(--accent); padding-left: 1em; margin: 0.5em 0; color: var(--text-secondary); }
+.lab-preview blockquote { border-left: 3px solid var(--accent); padding-left: 1em; margin: 0.5em 0; color: var(--text-secondary); font-style: italic; }
 .lab-preview code { font-family: var(--font-mono); background: var(--bg-hover); padding: 0.15em 0.3em; border-radius: 3px; font-size: 0.9em; }
 .lab-preview strong { font-weight: 700; }
 .lab-preview em { font-style: italic; }
-.lab-preview hr { border: none; border-top: 1px solid var(--border); margin: 1em 0; }
+.lab-preview hr { border: none; border-top: 2px dashed var(--border); margin: 1em 0; }

@@ -1,46 +1,46 @@
-/** Color mappings for tags and badges throughout the app */
+/** Color mappings — warm analog palette with hand-drawn aesthetic */
 
 export const STATUS_COLORS = {
-  draft: { bg: '#9E6B3A', text: '#fff' },
-  review: { bg: '#3D7AED', text: '#fff' },
-  approved: { bg: '#2EAD6A', text: '#fff' },
-  published: { bg: '#6C5CE7', text: '#fff' },
-  archived: { bg: '#7B8098', text: '#fff' },
-}
-
-export const TONE_COLORS = {
-  analytical: { bg: '#3D7AED', text: '#fff' },
-  empathetic: { bg: '#D63384', text: '#fff' },
-  educational: { bg: '#2EAD6A', text: '#fff' },
-  persuasive: { bg: '#E8872B', text: '#fff' },
-}
-
-export const AUDIENCE_COLORS = {
-  sellers: { bg: '#E8872B', text: '#fff' },
-  investors: { bg: '#3D7AED', text: '#fff' },
-  academic: { bg: '#D63384', text: '#fff' },
-  general: { bg: '#7B8098', text: '#fff' },
-  professional: { bg: '#2EAD6A', text: '#fff' },
-}
-
-export const SIGNATURE_MOVE_COLORS = {
-  rhetorical_question: { bg: '#3D7AED', text: '#fff' },
-  perhaps_emphasis: { bg: '#D63384', text: '#fff' },
-  define_before_build: { bg: '#2EAD6A', text: '#fff' },
-  i_believe: { bg: '#E8872B', text: '#fff' },
-  systemic_connector: { bg: '#6C5CE7', text: '#fff' },
-}
-
-export const QUALITY_COLORS = {
-  strong: { bg: '#2EAD6A', text: '#fff' },
-  usable: { bg: '#E8872B', text: '#fff' },
-  weak: { bg: '#E04B5A', text: '#fff' },
+  draft: { bg: '#C0623A', text: '#fff' },
+  review: { bg: '#2B7CB5', text: '#fff' },
+  approved: { bg: '#5A8A4A', text: '#fff' },
+  published: { bg: '#6B5A8E', text: '#fff' },
+  archived: { bg: '#8B7E6A', text: '#fff' },
 }
 
 export const LAB_STATUS_COLORS = {
-  editing: { bg: '#E8872B', text: '#fff' },
-  pending_review: { bg: '#3D7AED', text: '#fff' },
-  analyzed: { bg: '#2EAD6A', text: '#fff' },
+  editing: { bg: '#D4944A', text: '#fff' },
+  pending_review: { bg: '#2B7CB5', text: '#fff' },
+  analyzed: { bg: '#5A8A4A', text: '#fff' },
+}
+
+export const TONE_COLORS = {
+  analytical: { bg: '#2B7CB5', text: '#fff' },
+  empathetic: { bg: '#B5426A', text: '#fff' },
+  educational: { bg: '#5A8A4A', text: '#fff' },
+  persuasive: { bg: '#C0623A', text: '#fff' },
+}
+
+export const AUDIENCE_COLORS = {
+  sellers: { bg: '#C0623A', text: '#fff' },
+  investors: { bg: '#2B7CB5', text: '#fff' },
+  academic: { bg: '#6B5A8E', text: '#fff' },
+  general: { bg: '#8B7E6A', text: '#fff' },
+  professional: { bg: '#5A8A4A', text: '#fff' },
+}
+
+export const SIGNATURE_MOVE_COLORS = {
+  rhetorical_question: { bg: '#2B7CB5', text: '#fff' },
+  perhaps_emphasis: { bg: '#B5426A', text: '#fff' },
+  define_before_build: { bg: '#5A8A4A', text: '#fff' },
+  i_believe: { bg: '#C0623A', text: '#fff' },
+  systemic_connector: { bg: '#6B5A8E', text: '#fff' },
+}
+
+export const QUALITY_COLORS = {
+  strong: { bg: '#5A8A4A', text: '#fff' },
+  usable: { bg: '#D4944A', text: '#fff' },
+  weak: { bg: '#B5423A', text: '#fff' },
 }
 
 export const STATUS_OPTIONS = ['draft', 'review', 'approved', 'published', 'archived']
