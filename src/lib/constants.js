@@ -37,6 +37,12 @@ export const QUALITY_COLORS = {
   weak: { bg: '#E04B5A', text: '#fff' },
 }
 
+export const LAB_STATUS_COLORS = {
+  editing: { bg: '#E8872B', text: '#fff' },
+  pending_review: { bg: '#3D7AED', text: '#fff' },
+  analyzed: { bg: '#2EAD6A', text: '#fff' },
+}
+
 export const STATUS_OPTIONS = ['draft', 'review', 'approved', 'published', 'archived']
 export const TONE_OPTIONS = ['analytical', 'empathetic', 'educational', 'persuasive']
 export const AUDIENCE_OPTIONS = ['sellers', 'investors', 'academic', 'general', 'professional']

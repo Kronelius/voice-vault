@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useSupabaseQuery, useSupabaseMutation } from '../hooks/useSupabase'
-import { STATUS_COLORS, formatEnumLabel } from '../lib/constants'
+import { STATUS_COLORS, LAB_STATUS_COLORS, formatEnumLabel } from '../lib/constants'
 import Badge from '../components/ui/Badge'
 import Spinner from '../components/ui/Spinner'
 
@@ -65,6 +65,13 @@ export default function ContentList() {
                   </div>
                   <div className="flex items-center gap-3 mt-2 flex-wrap">
                     <Badge label={formatEnumLabel(item.status)} bg={statusColor.bg} text={statusColor.text} />
+                    {item.lab_status && (
+                      <Badge
+                        label={`Lab: ${formatEnumLabel(item.lab_status)}`}
+                        bg={LAB_STATUS_COLORS[item.lab_status]?.bg || '#7B8098'}
+                        text="#fff"
+                      />
+                    )}
                     {item.target_keyword && (
                       <span className="text-xs text-[var(--text-tertiary)] font-mono">
                         {item.target_keyword}

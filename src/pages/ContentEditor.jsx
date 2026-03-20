@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import MDEditor from '@uiw/react-md-editor'
 import { supabase } from '../lib/supabase'
 import { analyzeReadability } from '../lib/readability'
-import { STATUS_COLORS, STATUS_OPTIONS, formatEnumLabel } from '../lib/constants'
+import { STATUS_COLORS, LAB_STATUS_COLORS, STATUS_OPTIONS, formatEnumLabel } from '../lib/constants'
 import MetricIndicator from '../components/ui/MetricIndicator'
 import Badge from '../components/ui/Badge'
 import Spinner from '../components/ui/Spinner'
@@ -126,6 +126,19 @@ export default function ContentEditor() {
         </button>
         <div className="flex-1" />
         <span className="text-xs text-[var(--text-tertiary)]">{saveMsg}</span>
+        {content.lab_status && (
+          <Badge
+            label={`Lab: ${formatEnumLabel(content.lab_status)}`}
+            bg={LAB_STATUS_COLORS[content.lab_status]?.bg || '#7B8098'}
+            text="#fff"
+          />
+        )}
+        <button
+          onClick={() => navigate(`/content/${id}/lab`)}
+          className="px-4 py-2 border border-[var(--accent)] text-[var(--accent)] text-sm font-medium rounded-md hover:bg-[var(--accent-muted)] transition-all duration-200 font-sans"
+        >
+          Open Lab
+        </button>
         <button
           onClick={handleSave}
           disabled={saving}
