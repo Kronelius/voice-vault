@@ -58,6 +58,28 @@ export default function ContentLab() {
       setLoading(false)
     }
     load()
+
+    // Listen for external changes (e.g. chat panel Apply to Lab)
+    const channel = supabase
+      .channel(`lab-${id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'generated_content',
+        filter: `id=eq.${id}`,
+      }, (payload) => {
+        const updated = payload.new
+        if (updated.lab_markdown && updated.lab_markdown !== labText) {
+          setContent(prev => ({ ...prev, ...updated }))
+          setLabText(updated.lab_markdown)
+          setLabMetrics(analyzeReadability(updated.lab_markdown))
+          setSaveMsg('Content updated from chat panel')
+          setTimeout(() => setSaveMsg(''), 3000)
+        }
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
   }, [id, navigate])
 
   const updateLabMetrics = useCallback((text) => {
