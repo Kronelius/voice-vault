@@ -55,13 +55,12 @@ export default function ContentList() {
         {content.map((item, idx) => {
           const statusColor = STATUS_COLORS[item.status] || STATUS_COLORS.draft
           const noteColor = NOTE_COLORS[idx % NOTE_COLORS.length]
-          const tilt = idx % 3 === 0 ? 'rotate-[0.4deg]' : idx % 3 === 1 ? 'rotate-[-0.3deg]' : 'rotate-[0.1deg]'
 
           return (
             <button
               key={item.id}
               onClick={() => navigate(`/content/${item.id}`)}
-              className={`note-card text-left w-full p-5 cursor-pointer ${tilt}`}
+              className="clean-card text-left w-full p-5 cursor-pointer"
               style={{ backgroundColor: noteColor }}
             >
               <div className="flex items-start justify-between gap-4">

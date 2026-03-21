@@ -96,7 +96,7 @@ export default function VoiceChunks() {
           const noteColor = NOTE_COLORS[idx % NOTE_COLORS.length]
 
           return (
-            <div key={chunk.id} className="sketch-card overflow-hidden" style={{ backgroundColor: noteColor }}>
+            <div key={chunk.id} className="clean-card overflow-hidden" style={{ backgroundColor: noteColor }}>
               <button onClick={() => handleExpand(chunk)}
                 className="w-full text-left px-4 py-3 hover:bg-[var(--bg-hover)] transition-colors">
                 <div className="flex items-start justify-between gap-3">

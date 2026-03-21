@@ -47,11 +47,10 @@ export default function WritingSamples() {
             const audienceColor = AUDIENCE_COLORS[sample.audience] || AUDIENCE_COLORS.general
             const isSelected = selectedId === sample.id
             const noteColor = NOTE_COLORS[idx % NOTE_COLORS.length]
-            const tilt = idx % 3 === 0 ? 'rotate-[0.3deg]' : idx % 3 === 1 ? 'rotate-[-0.4deg]' : ''
 
             return (
               <button key={sample.id} onClick={() => handleSelect(sample)}
-                className={`note-card w-full text-left p-4 cursor-pointer ${tilt} ${
+                className={`clean-card w-full text-left p-4 cursor-pointer ${
                   isSelected ? 'ring-2 ring-[var(--accent)]' : ''
                 }`}
                 style={{ backgroundColor: isSelected ? 'var(--note-orange)' : noteColor }}>

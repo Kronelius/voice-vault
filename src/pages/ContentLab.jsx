@@ -228,7 +228,7 @@ export default function ContentLab() {
             onChange={handleTextChange}
             onScroll={handleScroll}
             spellCheck
-            className="sketch-input flex-1 w-full px-4 py-3 text-sm font-mono leading-relaxed resize-none"
+            className="clean-input flex-1 w-full px-4 py-3 text-sm font-mono leading-relaxed resize-none"
             style={{ minHeight: 560 }}
           />
         </div>
@@ -240,7 +240,7 @@ export default function ContentLab() {
           </div>
           <div
             ref={previewRef}
-            className="sketch-card-alt flex-1 w-full px-4 py-3 text-sm leading-relaxed overflow-y-auto lab-preview"
+            className="clean-card flex-1 w-full px-4 py-3 text-sm leading-relaxed overflow-y-auto lab-preview"
             style={{ minHeight: 560, backgroundColor: 'var(--bg-card)' }}
           >
             <ReactMarkdown rehypePlugins={[rehypeRaw]}>
