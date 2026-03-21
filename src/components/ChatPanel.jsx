@@ -169,9 +169,10 @@ export default function ChatPanel({ open, onClose }) {
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            rows={1}
+            rows={3}
             disabled={streaming}
-            className="sketch-input flex-1 px-2.5 py-1.5 text-xs font-sans resize-none"
+            className="sketch-input flex-1 px-2.5 py-2 text-sm font-sans resize-none"
+            style={{ minHeight: '72px' }}
           />
           <button
             type="submit"
