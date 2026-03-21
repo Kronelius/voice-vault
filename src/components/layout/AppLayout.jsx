@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
+import ChatPanel from '../ChatPanel'
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [chatOpen, setChatOpen] = useState(false)
 
   const handleNav = () => setSidebarOpen(false)
 
@@ -43,6 +45,19 @@ export default function AppLayout() {
           <Outlet />
         </div>
       </main>
+
+      {/* Floating Chat FAB */}
+      <button
+        onClick={() => setChatOpen(!chatOpen)}
+        className="fixed bottom-5 right-5 z-50 sketch-btn sketch-btn-primary w-12 h-12 flex items-center justify-center text-xl shadow-lg"
+        style={{ borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px' }}
+        aria-label={chatOpen ? 'Close chat' : 'Open chat'}
+      >
+        {chatOpen ? '×' : '💬'}
+      </button>
+
+      {/* Chat Panel */}
+      <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   )
 }

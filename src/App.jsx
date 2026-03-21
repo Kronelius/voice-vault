@@ -6,6 +6,7 @@ import VoiceChunks from './pages/VoiceChunks'
 import WritingSamples from './pages/WritingSamples'
 import ContentLab from './pages/ContentLab'
 import VoiceProfile from './pages/VoiceProfile'
+import Settings from './pages/Settings'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/chunks" element={<VoiceChunks />} />
         <Route path="/samples" element={<WritingSamples />} />
         <Route path="/profile" element={<VoiceProfile />} />
+        <Route path="/settings" element={<Settings />} />
       </Route>
     </Routes>
   )

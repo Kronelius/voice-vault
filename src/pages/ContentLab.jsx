@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { supabase } from '../lib/supabase'
+import { postApi, postApiStream } from '../lib/api'
 import { analyzeReadability } from '../lib/readability'
 import { computeDiffMarkdown } from '../lib/diff'
 import { LAB_STATUS_COLORS, formatEnumLabel } from '../lib/constants'
@@ -23,6 +24,10 @@ export default function ContentLab() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [committing, setCommitting] = useState(false)
+  const [reviewing, setReviewing] = useState(false)
+  const [adjusting, setAdjusting] = useState(false)
+  const [showGradeInput, setShowGradeInput] = useState(false)
+  const [targetGrade, setTargetGrade] = useState('')
   const [saveMsg, setSaveMsg] = useState('')
   const [originalMetrics, setOriginalMetrics] = useState(null)
   const [labMetrics, setLabMetrics] = useState(null)
@@ -47,6 +52,7 @@ export default function ContentLab() {
       setContent(data)
       const text = data.lab_markdown || data.body_markdown || ''
       setLabText(text)
+      setTargetGrade(data.fk_grade_target || '')
       setOriginalMetrics(analyzeReadability(data.body_markdown || ''))
       setLabMetrics(analyzeReadability(text))
       setLoading(false)
@@ -102,15 +108,82 @@ export default function ContentLab() {
 
   const handleRequestReview = async () => {
     setSaving(true)
+    setReviewing(true)
     setSaveMsg('')
-    const { error } = await supabase
+
+    // Save lab_markdown and set pending_review
+    const { error: saveErr } = await supabase
       .from('generated_content')
       .update({ lab_markdown: labText, lab_status: 'pending_review' })
       .eq('id', id)
+
+    if (saveErr) {
+      setSaving(false)
+      setReviewing(false)
+      setSaveMsg(`Error: ${saveErr.message}`)
+      setTimeout(() => setSaveMsg(''), 3000)
+      return
+    }
+
     setContent(prev => ({ ...prev, lab_markdown: labText, lab_status: 'pending_review' }))
+
+    // Call the review API
+    try {
+      const result = await postApi('/api/review', { contentId: id })
+      setContent(prev => ({
+        ...prev,
+        lab_status: 'analyzed',
+        lab_notes: result.notes,
+        lab_analyzed_at: new Date().toISOString(),
+      }))
+      setSaveMsg('Review complete')
+    } catch (err) {
+      setContent(prev => ({ ...prev, lab_status: 'editing' }))
+      setSaveMsg(`Review failed: ${err.message}`)
+    }
+
     setSaving(false)
-    setSaveMsg(error ? `Error: ${error.message}` : 'Sent for review')
-    setTimeout(() => setSaveMsg(''), 2000)
+    setReviewing(false)
+    setTimeout(() => setSaveMsg(''), 3000)
+  }
+
+  const handleAdjustGrade = async () => {
+    const grade = parseFloat(targetGrade)
+    if (!grade || grade < 1 || grade > 16) {
+      setSaveMsg('Enter a valid grade level (1-16)')
+      setTimeout(() => setSaveMsg(''), 2000)
+      return
+    }
+
+    setAdjusting(true)
+    setShowGradeInput(false)
+    setSaveMsg('Adjusting grade level...')
+
+    // Save current lab text first
+    await supabase.from('generated_content')
+      .update({ lab_markdown: labText, lab_status: 'editing' })
+      .eq('id', id)
+
+    try {
+      let streamedText = ''
+      await postApiStream('/api/adjust-grade', { contentId: id, targetGrade: grade }, (chunk) => {
+        streamedText += chunk
+        setLabText(streamedText)
+      })
+      // Recalculate metrics
+      updateLabMetrics(streamedText)
+      // Save the result
+      await supabase.from('generated_content')
+        .update({ lab_markdown: streamedText, lab_status: 'editing' })
+        .eq('id', id)
+      setContent(prev => ({ ...prev, lab_markdown: streamedText, lab_status: 'editing' }))
+      setSaveMsg('Grade adjustment complete')
+    } catch (err) {
+      setSaveMsg(`Adjust failed: ${err.message}`)
+    }
+
+    setAdjusting(false)
+    setTimeout(() => setSaveMsg(''), 3000)
   }
 
   const handleCommit = async () => {
@@ -118,6 +191,7 @@ export default function ContentLab() {
     setCommitting(true)
     const m = analyzeReadability(labText)
     const newVersion = (content.version || 1) + 1
+    const oldMarkdown = content.body_markdown
     const { error } = await supabase
       .from('generated_content')
       .update({
@@ -142,6 +216,8 @@ export default function ContentLab() {
     if (error) {
       setSaveMsg(`Error: ${error.message}`)
     } else {
+      // Fire-and-forget: extract chunks from the changes
+      postApi('/api/extract-chunks', { contentId: id, oldMarkdown, newMarkdown: labText }).catch(() => {})
       navigate(`/content/${id}`)
     }
   }
@@ -179,13 +255,37 @@ export default function ContentLab() {
         </div>
         <div className="flex-1" />
         <span className="text-xs text-[var(--text-tertiary)]">{saveMsg}</span>
-        <button onClick={handleDiscard} className="sketch-btn sketch-btn-danger px-3 py-1.5 text-sm">Discard</button>
+
+        {/* Grade adjust controls */}
+        {content.lab_status !== 'analyzed' && !reviewing && !adjusting && (
+          showGradeInput ? (
+            <div className="flex items-center gap-1">
+              <input
+                type="number" min="1" max="16" step="0.5"
+                value={targetGrade} onChange={e => setTargetGrade(e.target.value)}
+                placeholder="Grade"
+                className="sketch-input px-2 py-1.5 text-sm font-mono w-20"
+              />
+              <button onClick={handleAdjustGrade} className="sketch-btn sketch-btn-primary px-3 py-1.5 text-xs">Go</button>
+              <button onClick={() => setShowGradeInput(false)} className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">Cancel</button>
+            </div>
+          ) : (
+            <button onClick={() => setShowGradeInput(true)} className="sketch-btn sketch-btn-outline px-3 py-2 text-sm"
+              style={{ borderColor: 'var(--secondary)', color: 'var(--secondary)' }}>
+              Adjust Grade
+            </button>
+          )
+        )}
+
+        <button onClick={handleDiscard} className="sketch-btn sketch-btn-danger px-4 py-2 text-sm">Discard</button>
         <button onClick={handleSaveDraft} disabled={saving} className="sketch-btn sketch-btn-outline px-4 py-2 text-sm">
-          {saving ? 'Saving...' : 'Save Draft'}
+          {saving && !reviewing ? 'Saving...' : 'Save Draft'}
         </button>
         {content.lab_status !== 'analyzed' && (
-          <button onClick={handleRequestReview} disabled={saving || !hasChanges}
-            className="sketch-btn sketch-btn-blue px-4 py-2 text-sm">Request Review</button>
+          <button onClick={handleRequestReview} disabled={saving || reviewing || adjusting || !hasChanges}
+            className="sketch-btn sketch-btn-blue px-4 py-2 text-sm">
+            {reviewing ? 'Reviewing...' : 'Request Review'}
+          </button>
         )}
         {content.lab_status === 'analyzed' && (
           <button onClick={handleCommit} disabled={committing}
@@ -197,6 +297,22 @@ export default function ContentLab() {
       <h2 className="text-lg font-heading font-semibold text-[var(--text-primary)]">
         {content.title || 'Untitled'}
       </h2>
+
+      {/* Reviewing indicator */}
+      {reviewing && (
+        <div className="sketch-card p-4 flex items-center gap-3" style={{ backgroundColor: 'var(--note-blue)' }}>
+          <span className="w-3 h-3 rounded-full bg-[var(--secondary)] animate-pulse" />
+          <span className="text-sm text-[var(--text-primary)] font-sans">Claude is reviewing your changes...</span>
+        </div>
+      )}
+
+      {/* Adjusting indicator */}
+      {adjusting && (
+        <div className="sketch-card p-4 flex items-center gap-3" style={{ backgroundColor: 'var(--note-blue)' }}>
+          <span className="w-3 h-3 rounded-full bg-[var(--secondary)] animate-pulse" />
+          <span className="text-sm text-[var(--text-primary)] font-sans">Claude is adjusting grade level...</span>
+        </div>
+      )}
 
       {/* Analysis notes */}
       {content.lab_notes && (

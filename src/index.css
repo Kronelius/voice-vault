@@ -261,7 +261,10 @@ nav a {
 input[type="text"],
 input[type="search"],
 textarea {
-  cursor: text;
+  cursor: url('/cursor-text.svg') 12 16, text;
+}
+.w-md-editor-text-input {
+  cursor: url('/cursor-text.svg') 12 16, text;
 }
 select {
   cursor: url('/cursor-pointer.svg') 5 2, pointer;
