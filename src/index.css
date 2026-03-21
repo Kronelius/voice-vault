@@ -206,12 +206,12 @@ body {
 
 /* Danger button */
 .sketch-btn-danger {
-  color: var(--error);
-  border-color: var(--error);
-  background: transparent;
+  background: var(--error);
+  color: white;
+  border-color: #5A3535;
 }
 .sketch-btn-danger:hover:not(:disabled) {
-  background: var(--note-pink);
+  background: #5A3535;
 }
 
 /* Blue action button */

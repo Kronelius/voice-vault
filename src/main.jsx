@@ -3,13 +3,16 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from './hooks/useTheme'
 import App from './App'
+import PasswordGate from './components/PasswordGate'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <ThemeProvider>
-        <App />
+        <PasswordGate>
+          <App />
+        </PasswordGate>
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,
