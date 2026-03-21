@@ -44,36 +44,53 @@ Return ONLY valid JSON, no markdown fences or commentary.`
 }
 
 export function buildGradeAdjustPrompt(voiceProfile, markdown, targetGrade, audience, contractionTarget) {
-  const system = voiceProfile.system_prompt || 'You are an expert editor who preserves the author\'s unique voice.'
+  // Use a neutral system prompt — NOT the voice profile's system_prompt
+  // The voice profile often says "keep it simple" which conflicts with raising grade levels
+  const system = 'You are an expert editor specializing in readability adjustments. Your job is to rewrite text to hit a specific Flesch-Kincaid Grade Level target. The grade level target is your PRIMARY objective — it takes absolute priority over any other style guidance.'
 
-  const readingTargets = voiceProfile.reading_level_targets?.[audience || 'general']
   const vocab = voiceProfile.vocabulary || {}
   const signatureMoves = (voiceProfile.signature_moves_config || [])
     .map(m => `- ${m.pattern}: ${m.description}`).join('\n')
 
   const user = `Rewrite the following article to target Flesch-Kincaid Grade Level ${targetGrade} for a ${audience || 'general'} audience.
 
-## How Flesch-Kincaid Grade Level Works:
-FK Grade = 0.39 × (avg words per sentence) + 11.8 × (avg syllables per word) − 15.59
-- To RAISE the grade level: use longer sentences (combine short ones), use more multi-syllable words, use more complex vocabulary
-- To LOWER the grade level: use shorter sentences (break long ones apart), use simpler words with fewer syllables, favor one/two syllable words
-- Average sentence length has the BIGGEST impact on FK grade. A grade 8 article typically has 15-20 words per sentence.
+## CRITICAL — How Flesch-Kincaid Grade Level Works:
+FK Grade = 0.39 × (total words / total sentences) + 11.8 × (total syllables / total words) − 15.59
+
+The two levers are:
+1. AVERAGE SENTENCE LENGTH (words per sentence) — this is the BIGGEST lever
+2. AVERAGE SYLLABLES PER WORD — using multi-syllable vs single-syllable words
+
+Target benchmarks by grade level:
+- Grade 5: ~12 words/sentence, ~1.3 syllables/word
+- Grade 8: ~17 words/sentence, ~1.5 syllables/word
+- Grade 10: ~20 words/sentence, ~1.6 syllables/word
+- Grade 12: ~23 words/sentence, ~1.7 syllables/word
+
+To RAISE the grade: combine short sentences into longer compound/complex sentences, use more multi-syllable words (e.g. "use" → "utilize", "help" → "assistance", "show" → "demonstrate")
+To LOWER the grade: break long sentences into shorter ones, replace complex words with simple ones
 
 ${contractionTarget ? `## Contraction Target: ${contractionTarget}` : ''}
-${readingTargets ? `## Reading Level Rules:\n${JSON.stringify(readingTargets, null, 2)}` : ''}
 
-## Vocabulary to Use: ${(vocab.favorites || []).join(', ') || 'none specified'}
-## Vocabulary to Avoid: ${(vocab.avoid || []).join(', ') || 'none specified'}
-## Preferred Transitions: ${(vocab.transitions || []).join(', ') || 'none specified'}
+## Vocabulary Preferences (secondary to grade target):
+- Favor: ${(vocab.favorites || []).join(', ') || 'none specified'}
+- Avoid: ${(vocab.avoid || []).join(', ') || 'none specified'}
+- Transitions: ${(vocab.transitions || []).join(', ') || 'none specified'}
 
-## Signature Moves (preserve these patterns):
+## Signature Moves (preserve when possible):
 ${signatureMoves || 'None defined'}
 
 ## Current Article:
 ${markdown}
 
 ## Instructions:
-Rewrite this article to hit FK Grade Level ${targetGrade}. You MUST significantly adjust sentence length and word complexity to reach the target grade. Do not make only minor cosmetic changes — restructure sentences as needed to mathematically hit the target. Preserve the author's voice, signature moves, and argument structure as much as possible while still hitting the grade target. Maintain the same markdown formatting (headings, paragraphs, etc.). Return ONLY the rewritten markdown with no commentary or explanation.`
+REWRITE this article to hit FK Grade Level ${targetGrade}. This is currently around grade 5 with very short sentences (~10 words/sentence). To reach grade ${targetGrade}, you MUST:
+- Combine short sentences into longer, more sophisticated ones
+- Target approximately ${targetGrade <= 6 ? '12' : targetGrade <= 8 ? '17' : targetGrade <= 10 ? '20' : '23'} words per sentence on average
+- Use more multi-syllable vocabulary where natural
+- DO NOT just make tiny word swaps — fundamentally restructure sentence lengths
+
+Preserve the argument structure, key points, and general tone. Maintain markdown formatting. Return ONLY the rewritten markdown — no commentary, no explanation.`
 
   return { system, user }
 }
