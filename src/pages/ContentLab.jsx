@@ -216,7 +216,7 @@ export default function ContentLab() {
       )}
 
       {/* Editor + Diff Preview + Metrics */}
-      <div className="flex gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         {/* Left: Plain text editor */}
         <div className="flex-1 min-w-0 flex flex-col">
           <div className="text-xs font-semibold font-heading text-[var(--text-tertiary)] uppercase tracking-wide mb-2">
@@ -250,7 +250,7 @@ export default function ContentLab() {
         </div>
 
         {/* Right: Metrics sidebar */}
-        <div className="w-56 shrink-0 space-y-4 pt-6">
+        <div className="w-full lg:w-56 lg:shrink-0 space-y-4 lg:pt-6">
           {labMetrics && originalMetrics && (
             <div className="sketch-card p-3" style={{ backgroundColor: 'var(--note-green)' }}>
               <h3 className="text-xs font-semibold font-heading text-[var(--accent)] mb-2 uppercase tracking-wide">

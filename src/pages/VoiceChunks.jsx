@@ -136,7 +136,7 @@ export default function VoiceChunks() {
                     <textarea value={editState.full_text} onChange={e => setEditState(s => ({ ...s, full_text: e.target.value }))}
                       rows={6} className="sketch-input w-full px-3 py-2 text-sm" />
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                       <label className="block text-xs text-[var(--text-tertiary)] mb-1 font-sans font-semibold">Audience</label>
                       <select value={editState.audience} onChange={e => setEditState(s => ({ ...s, audience: e.target.value }))}

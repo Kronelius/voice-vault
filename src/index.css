@@ -264,6 +264,14 @@ select {
   cursor: url('/cursor-hand.svg') 10 5, pointer;
 }
 
+/* === Disable custom cursors on touch devices === */
+@media (pointer: coarse) {
+  body { cursor: auto; }
+  button, a, [role="button"], summary, label[for] { cursor: pointer; }
+  .sketch-btn { cursor: pointer; }
+  select { cursor: pointer; }
+}
+
 /* === Scrollbar === */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-surface); }

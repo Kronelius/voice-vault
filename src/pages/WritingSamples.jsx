@@ -35,7 +35,7 @@ export default function WritingSamples() {
   if (error) return <p className="text-[var(--error)]">Error: {error}</p>
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col md:flex-row gap-4">
       <div className="flex-1 min-w-0">
         <div className="mb-4">
           <h1 className="text-2xl font-bold font-heading text-[var(--text-primary)]">Writing Samples</h1>
@@ -76,7 +76,7 @@ export default function WritingSamples() {
       </div>
 
       {selected && editState && (
-        <div className="w-96 shrink-0 space-y-4 sticky top-6 self-start">
+        <div className="w-full md:w-96 md:shrink-0 space-y-4 md:sticky md:top-6 md:self-start">
           <div className="sketch-card p-4 space-y-3" style={{ backgroundColor: 'var(--note-yellow)' }}>
             <h2 className="text-sm font-bold font-heading text-[var(--text-primary)]">Edit Metadata</h2>
             <div>

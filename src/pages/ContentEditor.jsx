@@ -130,12 +130,12 @@ export default function ContentEditor() {
       </div>
 
       {/* Editor + Sidebar */}
-      <div className="flex gap-4">
+      <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1 min-w-0" data-color-mode={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}>
           <MDEditor value={content.body_markdown || ''} onChange={handleMarkdownChange} height={560} preview="live" />
         </div>
 
-        <div className="w-56 shrink-0 space-y-4">
+        <div className="w-full md:w-56 md:shrink-0 space-y-4">
           <div className="sketch-card p-3" style={{ backgroundColor: 'var(--note-green)' }}>
             <h3 className="text-xs font-bold font-heading text-[var(--text-primary)] mb-2 uppercase tracking-wide">Readability</h3>
             {metrics && (

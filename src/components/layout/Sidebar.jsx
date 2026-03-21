@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { to: '/profile', label: 'Voice Profile', icon: '🎙️' },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ onNavigate }) {
   const { dark, toggle } = useTheme()
 
   return (
@@ -26,6 +26,7 @@ export default function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.to === '/'}
+            onClick={onNavigate}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3.5 text-sm font-sans transition-all duration-200 ${
                 isActive
