@@ -91,6 +91,7 @@ body {
   background-repeat: repeat;
   background-size: 200px 200px;
   color: var(--text-primary);
+  cursor: url('/cursor-pointer.svg') 5 2, auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -185,7 +186,7 @@ body {
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
   font-family: var(--font-body);
   font-weight: 600;
-  cursor: pointer;
+  cursor: url('/cursor-hand.svg') 10 5, pointer;
   transition: all 0.15s ease;
 }
 .sketch-btn:hover:not(:disabled) {
@@ -243,7 +244,7 @@ body {
 
 /* === Button & Clickable Element Base === */
 button, a, [role="button"], summary, label[for] {
-  cursor: pointer;
+  cursor: url('/cursor-hand.svg') 10 5, pointer;
 }
 button:disabled {
   cursor: not-allowed;
@@ -260,7 +261,7 @@ textarea {
   cursor: text;
 }
 select {
-  cursor: pointer;
+  cursor: url('/cursor-hand.svg') 10 5, pointer;
 }
 
 /* === Scrollbar === */
