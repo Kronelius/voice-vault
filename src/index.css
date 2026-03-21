@@ -112,6 +112,7 @@ body {
 }
 .sketch-card:hover {
   box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
 }
 
 /* Nav item — sketch-card outline only on hover */
@@ -145,7 +146,9 @@ body {
   transition: all 0.2s ease;
 }
 .clean-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  border-color: var(--accent);
 }
 
 /* Clean input — straight borders for structured/console-style editor areas */
@@ -186,7 +189,7 @@ body {
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
   font-family: var(--font-body);
   font-weight: 600;
-  cursor: url('/cursor-hand.svg') 10 5, pointer;
+  cursor: url('/cursor-pointer.svg') 5 2, pointer;
   transition: all 0.15s ease;
 }
 .sketch-btn:hover:not(:disabled) {
@@ -244,7 +247,7 @@ body {
 
 /* === Button & Clickable Element Base === */
 button, a, [role="button"], summary, label[for] {
-  cursor: url('/cursor-hand.svg') 10 5, pointer;
+  cursor: url('/cursor-pointer.svg') 5 2, pointer;
 }
 button:disabled {
   cursor: not-allowed;
@@ -261,7 +264,7 @@ textarea {
   cursor: text;
 }
 select {
-  cursor: url('/cursor-hand.svg') 10 5, pointer;
+  cursor: url('/cursor-pointer.svg') 5 2, pointer;
 }
 
 /* === Disable custom cursors on touch devices === */
