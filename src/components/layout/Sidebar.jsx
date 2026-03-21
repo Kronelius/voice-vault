@@ -27,14 +27,14 @@ export default function Sidebar() {
             to={item.to}
             end={item.to === '/'}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2.5 text-sm font-sans transition-all duration-200 ${
+              `flex items-center gap-3 px-4 py-3.5 text-sm font-sans transition-all duration-200 ${
                 isActive
                   ? 'sketch-card font-semibold text-[var(--accent)] bg-[var(--note-orange)]'
-                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] rounded-md'
+                  : 'nav-item-hover rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`
             }
           >
-            <span className="text-base">{item.icon}</span>
+            <span className="text-lg">{item.icon}</span>
             {item.label}
           </NavLink>
         ))}

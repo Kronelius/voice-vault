@@ -113,6 +113,19 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
+/* Nav item — sketch-card outline only on hover */
+.nav-item-hover {
+  border: 2.5px solid transparent;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+.nav-item-hover:hover {
+  border: 2.5px solid var(--border-dark);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-md);
+}
+
 /* Slightly different wobble for variety */
 .sketch-card-alt {
   border: 2.5px solid var(--border-dark);
