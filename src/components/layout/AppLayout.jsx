@@ -1,11 +1,16 @@
 import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import ChatPanel from '../ChatPanel'
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
+  const location = useLocation()
+
+  // Extract content ID from /content/:id or /content/:id/lab paths
+  const contentMatch = location.pathname.match(/\/content\/([^/]+)/)
+  const contentId = contentMatch ? contentMatch[1] : null
 
   const handleNav = () => setSidebarOpen(false)
 
@@ -57,7 +62,7 @@ export default function AppLayout() {
       </button>
 
       {/* Chat Panel */}
-      <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} contentId={contentId} />
     </div>
   )
 }
