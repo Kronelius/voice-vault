@@ -10,16 +10,29 @@ export default function PasswordGate({ children }) {
   const [digits, setDigits] = useState([])
   const [error, setError] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [welcomePhase, setWelcomePhase] = useState('idle') // idle | jump-in | visible | jump-out
 
   useEffect(() => {
     if (digits.length === PIN_LENGTH) {
       const entered = digits.join('')
       if (entered === PASSCODE) {
         setSuccess(true)
+        // Start welcome sequence after brief PIN success flash
         setTimeout(() => {
-          sessionStorage.setItem('vv_unlocked', 'true')
-          setUnlocked(true)
-        }, 400)
+          setShowWelcome(true)
+          // Phase 1: jump in
+          requestAnimationFrame(() => setWelcomePhase('jump-in'))
+          // Phase 2: hold visible
+          setTimeout(() => setWelcomePhase('visible'), 400)
+          // Phase 3: jump out
+          setTimeout(() => setWelcomePhase('jump-out'), 1800)
+          // Phase 4: unlock and show app
+          setTimeout(() => {
+            sessionStorage.setItem('vv_unlocked', 'true')
+            setUnlocked(true)
+          }, 2200)
+        }, 300)
       } else {
         setError(true)
         setTimeout(() => {
@@ -55,6 +68,42 @@ export default function PasswordGate({ children }) {
   }
 
   if (unlocked) return children
+
+  // Welcome splash screen
+  if (showWelcome) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: 'var(--bg-primary)' }}
+      >
+        <div
+          style={{
+            textAlign: 'center',
+            transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transform:
+              welcomePhase === 'idle' ? 'scale(0) translateY(40px)' :
+              welcomePhase === 'jump-in' ? 'scale(1.1) translateY(-10px)' :
+              welcomePhase === 'visible' ? 'scale(1) translateY(0)' :
+              'scale(0) translateY(-60px)',
+            opacity: welcomePhase === 'idle' || welcomePhase === 'jump-out' ? 0 : 1,
+          }}
+        >
+          <h1
+            className="text-5xl font-bold mb-2"
+            style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent)' }}
+          >
+            Welcome
+          </h1>
+          <p
+            className="text-lg"
+            style={{ fontFamily: 'var(--font-body)', color: 'var(--text-secondary)' }}
+          >
+            to Voice Vault
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   const numpadRows = [
     ['1', '2', '3'],
