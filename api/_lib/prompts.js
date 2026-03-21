@@ -53,6 +53,12 @@ export function buildGradeAdjustPrompt(voiceProfile, markdown, targetGrade, audi
 
   const user = `Rewrite the following article to target Flesch-Kincaid Grade Level ${targetGrade} for a ${audience || 'general'} audience.
 
+## How Flesch-Kincaid Grade Level Works:
+FK Grade = 0.39 × (avg words per sentence) + 11.8 × (avg syllables per word) − 15.59
+- To RAISE the grade level: use longer sentences (combine short ones), use more multi-syllable words, use more complex vocabulary
+- To LOWER the grade level: use shorter sentences (break long ones apart), use simpler words with fewer syllables, favor one/two syllable words
+- Average sentence length has the BIGGEST impact on FK grade. A grade 8 article typically has 15-20 words per sentence.
+
 ${contractionTarget ? `## Contraction Target: ${contractionTarget}` : ''}
 ${readingTargets ? `## Reading Level Rules:\n${JSON.stringify(readingTargets, null, 2)}` : ''}
 
@@ -67,7 +73,7 @@ ${signatureMoves || 'None defined'}
 ${markdown}
 
 ## Instructions:
-Rewrite this article to hit FK Grade Level ${targetGrade}. Preserve the author's voice, signature moves, and argument structure. Maintain the same markdown formatting (headings, paragraphs, etc.). Return ONLY the rewritten markdown with no commentary or explanation.`
+Rewrite this article to hit FK Grade Level ${targetGrade}. You MUST significantly adjust sentence length and word complexity to reach the target grade. Do not make only minor cosmetic changes — restructure sentences as needed to mathematically hit the target. Preserve the author's voice, signature moves, and argument structure as much as possible while still hitting the grade target. Maintain the same markdown formatting (headings, paragraphs, etc.). Return ONLY the rewritten markdown with no commentary or explanation.`
 
   return { system, user }
 }
