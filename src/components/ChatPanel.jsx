@@ -108,14 +108,34 @@ export default function ChatPanel({ open, onClose }) {
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <button onClick={() => { setMessages([]); setInput('') }}
-            className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] font-sans px-1.5 py-0.5">
+            className="text-[11px] font-sans font-semibold px-2.5 py-1 transition-all duration-150"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              color: 'var(--text-secondary)',
+              border: '2px solid var(--border-dark)',
+              borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={e => { e.target.style.backgroundColor = 'var(--note-yellow)'; e.target.style.color = 'var(--text-primary)' }}
+            onMouseLeave={e => { e.target.style.backgroundColor = 'var(--bg-card)'; e.target.style.color = 'var(--text-secondary)' }}
+          >
             Clear
           </button>
           <button onClick={onClose}
-            className="text-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] leading-none px-1">
-            ×
+            className="text-sm font-bold px-2 py-0.5 transition-all duration-150"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              color: 'var(--text-secondary)',
+              border: '2px solid var(--border-dark)',
+              borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={e => { e.target.style.backgroundColor = 'var(--note-pink)'; e.target.style.color = 'var(--error)' }}
+            onMouseLeave={e => { e.target.style.backgroundColor = 'var(--bg-card)'; e.target.style.color = 'var(--text-secondary)' }}
+          >
+            ✕
           </button>
         </div>
       </div>
