@@ -6,6 +6,10 @@ import App from './App'
 import PasswordGate from './components/PasswordGate'
 import './index.css'
 
+if (import.meta.env.DEV) {
+  document.querySelector('link[rel="icon"]').href = '/favicon-dev.svg'
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
