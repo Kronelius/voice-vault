@@ -5,6 +5,30 @@ import { supabase } from '../lib/supabase'
 /* ───────────────────────────────────────────
    Project Phases & Tasks — Single Source of Truth
    ─────────────────────────────────────────── */
+const PROJECT_OVERVIEW = {
+  id: 'overview',
+  name: 'Project Overview',
+  icon: '📊',
+  vision: 'A fully integrated SEO content generation engine that captures your unique writing voice, researches high-value keyword opportunities, and produces voice-matched, SEO-optimized content at scale.',
+  stack: [
+    { label: 'Frontend', value: 'React 19 + Vite 8, Tailwind CSS 4' },
+    { label: 'Backend', value: 'Vercel Serverless Functions (Node.js)' },
+    { label: 'Database', value: 'Supabase (PostgreSQL + Row-Level Security)' },
+    { label: 'AI', value: 'Anthropic Claude API (content generation, voice matching, analysis)' },
+    { label: 'SEO APIs', value: 'DataForSEO, Serper.dev, Google Search Console' },
+    { label: 'Hosting', value: 'Vercel (auto-deploy from GitHub master)' },
+    { label: 'Repo', value: 'github.com/Kronelius/voice-vault' },
+  ],
+  architecture: [
+    { label: 'Voice Vault', desc: 'Voice profiling, writing samples, content editing with AI review — the foundation that makes generated content sound like you.' },
+    { label: 'Website Scraping', desc: 'Crawl target sites, map internal link structure, audit technical SEO issues, track changes over time.' },
+    { label: 'Keyword Intelligence', desc: 'Research volumes, difficulty, competitors, and content gaps. Cluster keywords into topics and score opportunities.' },
+    { label: 'Content Strategy', desc: 'Map keywords to content types, build topic clusters, generate briefs, plan editorial calendar.' },
+    { label: 'Content Generation', desc: 'Voice-matched, keyword-targeted drafts with SEO scoring, schema markup, and optimization suggestions.' },
+    { label: 'Performance Loop', desc: 'Rank tracking, traffic analytics, content decay detection, refresh recommendations, ROI reporting.' },
+  ],
+}
+
 const PROJECT_PHASES = [
   {
     id: 'phase-1',
@@ -187,7 +211,7 @@ export default function DevDashboard() {
   const [noteValue, setNoteValue] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [activePhase, setActivePhase] = useState('phase-1')
+  const [activePhase, setActivePhase] = useState('overview')
   const [lastUpdated, setLastUpdated] = useState(null)
   const [teamNotes, setTeamNotes] = useState('')
   const [editingTeamNotes, setEditingTeamNotes] = useState(false)
@@ -361,6 +385,17 @@ export default function DevDashboard() {
       <div className="dash-body">
         {/* Phase Sidebar */}
         <nav className="phase-sidebar">
+          {/* Overview Button */}
+          <button
+            className={`phase-item overview-item ${activePhase === 'overview' ? 'active' : ''}`}
+            onClick={() => { setActivePhase('overview'); setExpandedTask(null) }}
+            style={{ '--phase-color': '#6366f1', marginBottom: '16px' }}
+          >
+            <div className="phase-item-row">
+              <span className="phase-icon">📊</span>
+              <span className="phase-item-name" style={{ fontWeight: 800 }}>Project Overview</span>
+            </div>
+          </button>
           <div className="phase-list-label">DEVELOPMENT PHASES</div>
           {PROJECT_PHASES.map(phase => {
             const stats = getPhaseStats(phase)
@@ -369,7 +404,7 @@ export default function DevDashboard() {
               <button
                 key={phase.id}
                 className={`phase-item ${isActive ? 'active' : ''}`}
-                onClick={() => setActivePhase(phase.id)}
+                onClick={() => { setActivePhase(phase.id); setExpandedTask(null) }}
                 style={{ '--phase-color': phase.color }}
               >
                 <div className="phase-item-row">
@@ -412,6 +447,97 @@ export default function DevDashboard() {
 
         {/* Split Task Area */}
         <main className="task-area-split">
+          {/* ─── OVERVIEW MODE ─── */}
+          {activePhase === 'overview' ? (
+            <div className="overview-pane">
+              {/* Hero */}
+              <div className="overview-hero">
+                <div className="overview-hero-glow" />
+                <h2 className="overview-hero-title">SEO Content Engine</h2>
+                <p className="overview-hero-vision">{PROJECT_OVERVIEW.vision}</p>
+                <div className="overview-stats-row">
+                  <div className="overview-stat-chip">
+                    <span className="overview-stat-num">{PROJECT_PHASES.length}</span>
+                    <span className="overview-stat-txt">Phases</span>
+                  </div>
+                  <div className="overview-stat-chip">
+                    <span className="overview-stat-num">{totalTasks}</span>
+                    <span className="overview-stat-txt">Tasks</span>
+                  </div>
+                  <div className="overview-stat-chip">
+                    <span className="overview-stat-num">{overallProgress}%</span>
+                    <span className="overview-stat-txt">Complete</span>
+                  </div>
+                  <div className="overview-stat-chip">
+                    <span className="overview-stat-num">{totalCompleted}</span>
+                    <span className="overview-stat-txt">Done</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overview-grid">
+                {/* Tech Stack */}
+                <div className="overview-card">
+                  <h3 className="overview-card-title"><span>🛠️</span> Tech Stack</h3>
+                  <div className="overview-stack-list">
+                    {PROJECT_OVERVIEW.stack.map((item, i) => (
+                      <div key={i} className="overview-stack-row">
+                        <span className="overview-stack-label">{item.label}</span>
+                        <span className="overview-stack-value">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Architecture */}
+                <div className="overview-card">
+                  <h3 className="overview-card-title"><span>🏗️</span> Architecture</h3>
+                  <div className="overview-arch-list">
+                    {PROJECT_OVERVIEW.architecture.map((item, i) => (
+                      <div key={i} className="overview-arch-item">
+                        <div className="overview-arch-label">{item.label}</div>
+                        <p className="overview-arch-desc">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Phase Roadmap */}
+              <div className="overview-card" style={{ marginTop: '0' }}>
+                <h3 className="overview-card-title"><span>🗺️</span> Phase Roadmap</h3>
+                <div className="overview-roadmap">
+                  {PROJECT_PHASES.map((phase, i) => {
+                    const stats = getPhaseStats(phase)
+                    return (
+                      <div
+                        key={phase.id}
+                        className={`overview-roadmap-item ${stats.pct === 100 ? 'complete' : stats.pct > 0 ? 'in-progress' : 'upcoming'}`}
+                        onClick={() => { setActivePhase(phase.id); setExpandedTask(null) }}
+                      >
+                        <div className="roadmap-connector">
+                          <div className="roadmap-dot" style={{ background: stats.pct === 100 ? '#22c55e' : stats.pct > 0 ? phase.color : '#334155' }} />
+                          {i < PROJECT_PHASES.length - 1 && <div className="roadmap-line" style={{ background: stats.pct === 100 ? '#22c55e44' : '#1e293b' }} />}
+                        </div>
+                        <div className="roadmap-content">
+                          <div className="roadmap-top-row">
+                            <span className="roadmap-icon">{phase.icon}</span>
+                            <span className="roadmap-name">{phase.name}</span>
+                            <span className="roadmap-pct" style={{ color: stats.pct === 100 ? '#22c55e' : stats.pct > 0 ? phase.color : '#475569' }}>{stats.pct}%</span>
+                          </div>
+                          <p className="roadmap-desc">{phase.description}</p>
+                          <div className="roadmap-bar-outer">
+                            <div className="roadmap-bar-inner" style={{ width: `${stats.pct}%`, background: stats.pct === 100 ? '#22c55e' : phase.color }} />
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : (
+          <>
           {/* ─── LEFT: Task List (50%) ─── */}
           <div className="task-list-pane">
             {activePhaseData && (
@@ -626,6 +752,8 @@ export default function DevDashboard() {
               )}
             </div>
           </div>
+          </>
+          )}
         </main>
       </div>
     </div>
@@ -969,4 +1097,117 @@ const devStyles = `
   }
   .team-notes-textarea:focus { border-color: rgba(99, 102, 241, 0.6); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
   .team-notes-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+  /* ── Overview Item in Sidebar ── */
+  .overview-item { border-bottom: 1px solid rgba(51, 65, 85, 0.3); padding-bottom: 14px; }
+  .overview-item .mini-bar-outer { display: none; }
+
+  /* ── Overview Pane ── */
+  .overview-pane {
+    flex: 1; padding: 28px 32px; overflow-y: auto;
+    max-height: calc(100vh - 71px);
+    display: flex; flex-direction: column; gap: 24px;
+  }
+
+  .overview-hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(236, 72, 153, 0.06) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 20px; padding: 36px 40px;
+  }
+  .overview-hero-glow {
+    position: absolute; top: -80px; right: -80px;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .overview-hero-title {
+    font-size: 28px; font-weight: 900; margin: 0 0 12px;
+    background: linear-gradient(135deg, #e2e8f0, #a5b4fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.03em;
+  }
+  .overview-hero-vision {
+    font-size: 15px; color: #94a3b8; line-height: 1.7; margin: 0 0 24px;
+    max-width: 680px;
+  }
+  .overview-stats-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .overview-stat-chip {
+    display: flex; align-items: baseline; gap: 6px;
+    background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(51, 65, 85, 0.4);
+    border-radius: 12px; padding: 10px 18px;
+  }
+  .overview-stat-num {
+    font-size: 22px; font-weight: 900; color: #f1f5f9;
+    font-variant-numeric: tabular-nums;
+  }
+  .overview-stat-txt {
+    font-size: 11px; color: #64748b; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  .overview-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  }
+  @media (max-width: 1200px) {
+    .overview-grid { grid-template-columns: 1fr; }
+  }
+
+  .overview-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(51, 65, 85, 0.4);
+    border-radius: 16px; padding: 24px 28px;
+  }
+  .overview-card-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 16px; font-weight: 800; color: #f1f5f9;
+    margin: 0 0 20px; letter-spacing: -0.01em;
+  }
+  .overview-card-title span { font-size: 20px; }
+
+  /* Stack rows */
+  .overview-stack-list { display: flex; flex-direction: column; gap: 8px; }
+  .overview-stack-row {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 8px 12px; border-radius: 8px;
+    background: rgba(15, 23, 42, 0.4);
+  }
+  .overview-stack-label {
+    font-size: 11px; font-weight: 800; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    min-width: 80px;
+  }
+  .overview-stack-value { font-size: 13px; color: #cbd5e1; }
+
+  /* Architecture items */
+  .overview-arch-list { display: flex; flex-direction: column; gap: 14px; }
+  .overview-arch-item { padding-left: 14px; border-left: 3px solid rgba(99, 102, 241, 0.3); }
+  .overview-arch-label { font-size: 13px; font-weight: 800; color: #a5b4fc; margin-bottom: 4px; }
+  .overview-arch-desc { font-size: 13px; color: #94a3b8; line-height: 1.6; margin: 0; }
+
+  /* Roadmap */
+  .overview-roadmap { display: flex; flex-direction: column; }
+  .overview-roadmap-item {
+    display: flex; gap: 20px; cursor: pointer;
+    padding: 12px 0; transition: all 0.15s;
+  }
+  .overview-roadmap-item:hover { opacity: 0.85; }
+  .overview-roadmap-item:hover .roadmap-name { color: #a5b4fc; }
+  .roadmap-connector {
+    display: flex; flex-direction: column; align-items: center;
+    width: 20px; flex-shrink: 0; padding-top: 4px;
+  }
+  .roadmap-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(51, 65, 85, 0.6); flex-shrink: 0;
+  }
+  .roadmap-line { width: 2px; flex: 1; min-height: 20px; margin-top: 4px; }
+  .roadmap-content { flex: 1; min-width: 0; }
+  .roadmap-top-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .roadmap-icon { font-size: 18px; }
+  .roadmap-name { font-size: 14px; font-weight: 700; color: #e2e8f0; flex: 1; transition: color 0.15s; }
+  .roadmap-pct { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .roadmap-desc { font-size: 12px; color: #64748b; margin: 0 0 8px; line-height: 1.5; }
+  .roadmap-bar-outer { height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; }
+  .roadmap-bar-inner { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 `
