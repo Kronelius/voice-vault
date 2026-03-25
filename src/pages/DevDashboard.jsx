@@ -1272,7 +1272,8 @@ const devStyles = `
   .pipeline-node {
     position: relative;
     display: flex; flex-direction: column; align-items: center;
-    text-align: center; width: 110px; padding: 14px 8px 12px;
+    justify-content: center;
+    text-align: center; width: 110px; height: 140px; padding: 14px 8px 12px;
     border-radius: 14px; background: rgba(15, 23, 42, 0.6);
     border: 1px solid rgba(51, 65, 85, 0.4);
     transition: all 0.2s;
