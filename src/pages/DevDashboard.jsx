@@ -1418,7 +1418,7 @@ const devStyles = `
   }
 
   .overview-hero {
-    position: relative; overflow: hidden;
+    position: relative;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(236, 72, 153, 0.06) 100%);
     border: 1px solid rgba(99, 102, 241, 0.25);
     border-radius: 20px; padding: 28px 40px;
