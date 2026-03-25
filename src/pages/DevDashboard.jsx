@@ -410,180 +410,221 @@ export default function DevDashboard() {
           )}
         </nav>
 
-        {/* Task Area */}
-        <main className="task-area">
-          {activePhaseData && (
-            <>
-              {/* Phase Header */}
-              <div className="phase-header" style={{ '--phase-color': activeColor }}>
-                <div className="phase-header-icon">{activePhaseData.icon}</div>
-                <div className="phase-header-text">
-                  <h2 className="phase-title">{activePhaseData.name}</h2>
-                  <p className="phase-desc">{activePhaseData.description}</p>
-                </div>
-                <div className="phase-header-stats">
-                  {(() => {
-                    const s = getPhaseStats(activePhaseData)
-                    return (
-                      <>
-                        <div className="phase-ring" style={{ '--ring-pct': s.pct, '--ring-color': activeColor }}>
-                          <svg viewBox="0 0 36 36" className="ring-svg">
-                            <path className="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            <path className="ring-fill" strokeDasharray={`${s.pct}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" style={{ stroke: activeColor }} />
-                          </svg>
-                          <span className="ring-text">{s.pct}%</span>
-                        </div>
-                        <span className="phase-stat-detail">{s.done}/{s.total} tasks</span>
-                      </>
-                    )
-                  })()}
-                </div>
-              </div>
-
-              {/* Task Cards */}
-              <div className="task-list">
-                {activePhaseData.tasks.map((task, idx) => {
-                  const isDone = task.status === 'done' || !!completedTasks[task.id]
-                  const isHardcoded = task.status === 'done'
-                  const note = taskNotes[task.id]
-                  const isExpanded = expandedTask === task.id
-                  const isEditingThis = editingNote === task.id
-                  const completionInfo = completedTasks[task.id]
-
-                  return (
-                    <div
-                      key={task.id}
-                      className={`task-card ${isDone ? 'done' : ''} ${isExpanded ? 'expanded' : ''}`}
-                      style={{ '--task-color': activeColor, animationDelay: `${idx * 30}ms` }}
-                    >
-                      <div className="task-top">
-                        {/* Checkbox */}
-                        <button
-                          className={`task-check ${isDone ? 'checked' : ''}`}
-                          style={isDone ? { background: activeColor, borderColor: activeColor } : {}}
-                          onClick={() => !isHardcoded && toggleTask(task.id)}
-                          disabled={isHardcoded || saving}
-                        >
-                          {isDone && (
-                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                              <path d="M2 6L5 9L10 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Split Task Area */}
+        <main className="task-area-split">
+          {/* ─── LEFT: Task List (50%) ─── */}
+          <div className="task-list-pane">
+            {activePhaseData && (
+              <>
+                {/* Phase Header */}
+                <div className="phase-header" style={{ '--phase-color': activeColor }}>
+                  <div className="phase-header-icon">{activePhaseData.icon}</div>
+                  <div className="phase-header-text">
+                    <h2 className="phase-title">{activePhaseData.name}</h2>
+                    <p className="phase-desc">{activePhaseData.description}</p>
+                  </div>
+                  <div className="phase-header-stats">
+                    {(() => {
+                      const s = getPhaseStats(activePhaseData)
+                      return (
+                        <>
+                          <div className="phase-ring" style={{ '--ring-pct': s.pct, '--ring-color': activeColor }}>
+                            <svg viewBox="0 0 36 36" className="ring-svg">
+                              <path className="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                              <path className="ring-fill" strokeDasharray={`${s.pct}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" style={{ stroke: activeColor }} />
                             </svg>
-                          )}
-                        </button>
-
-                        {/* Content */}
-                        <div className="task-body" onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
-                          <div className="task-id-badge" style={{ background: isDone ? `${activeColor}22` : '#1e293b', color: isDone ? activeColor : '#64748b' }}>
-                            {task.id}
+                            <span className="ring-text">{s.pct}%</span>
                           </div>
-                          <p className={`task-label ${isDone ? 'done' : ''}`}>{task.label}</p>
-                        </div>
+                          <span className="phase-stat-detail">{s.done}/{s.total} tasks</span>
+                        </>
+                      )
+                    })()}
+                  </div>
+                </div>
 
-                        {/* Status Pill */}
-                        <div className={`task-status-pill ${isDone ? 'done' : 'pending'}`} style={isDone ? { background: `${activeColor}22`, color: activeColor } : {}}>
-                          {isDone ? (isHardcoded ? 'Shipped' : 'Done') : 'To Do'}
+                {/* Task Cards */}
+                <div className="task-list">
+                  {activePhaseData.tasks.map((task, idx) => {
+                    const isDone = task.status === 'done' || !!completedTasks[task.id]
+                    const isHardcoded = task.status === 'done'
+                    const note = taskNotes[task.id]
+                    const isSelected = expandedTask === task.id
+
+                    return (
+                      <div
+                        key={task.id}
+                        className={`task-card ${isDone ? 'done' : ''} ${isSelected ? 'selected' : ''}`}
+                        style={{ '--task-color': activeColor, animationDelay: `${idx * 30}ms` }}
+                        onClick={() => setExpandedTask(isSelected ? null : task.id)}
+                      >
+                        <div className="task-top">
+                          <button
+                            className={`task-check ${isDone ? 'checked' : ''}`}
+                            style={isDone ? { background: activeColor, borderColor: activeColor } : {}}
+                            onClick={(e) => { e.stopPropagation(); !isHardcoded && toggleTask(task.id) }}
+                            disabled={isHardcoded || saving}
+                          >
+                            {isDone && (
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 6L5 9L10 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            )}
+                          </button>
+                          <div className="task-body">
+                            <div className="task-id-badge" style={{ background: isDone ? `${activeColor}22` : '#1e293b', color: isDone ? activeColor : '#64748b' }}>
+                              {task.id}
+                            </div>
+                            <p className={`task-label ${isDone ? 'done' : ''}`}>{task.label}</p>
+                          </div>
+                          <div className="task-indicators">
+                            {note && <span className="has-note-badge" title="Has notes">📝</span>}
+                            <div className={`task-status-pill ${isDone ? 'done' : 'pending'}`} style={isDone ? { background: `${activeColor}22`, color: activeColor } : {}}>
+                              {isDone ? (isHardcoded ? 'Shipped' : 'Done') : 'To Do'}
+                            </div>
+                          </div>
                         </div>
                       </div>
-
-                      {/* Note Display (always visible if exists) */}
-                      {note && !isEditingThis && (
-                        <div className="task-note-display" onClick={() => { setEditingNote(task.id); setNoteValue(note) }}>
-                          <span className="note-icon">📝</span>
-                          <span>{note}</span>
-                        </div>
-                      )}
-
-                      {/* Expanded Area */}
-                      {isExpanded && (
-                        <div className="task-expanded">
-                          {completionInfo?.at && (
-                            <div className="task-meta">
-                              Completed {new Date(completionInfo.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                              {completionInfo.by && ` by ${completionInfo.by}`}
-                            </div>
-                          )}
-                          {isHardcoded && (
-                            <div className="task-meta">Built and deployed in production code</div>
-                          )}
-
-                          {/* Note Editor */}
-                          {isEditingThis ? (
-                            <div className="note-editor">
-                              <textarea
-                                className="note-textarea"
-                                value={noteValue}
-                                onChange={e => setNoteValue(e.target.value)}
-                                placeholder="Add a note — blockers, decisions, context..."
-                                autoFocus
-                                rows={3}
-                              />
-                              <div className="note-actions">
-                                <button className="note-btn save" onClick={() => saveNote(task.id)} disabled={saving}>
-                                  {saving ? 'Saving...' : 'Save Note'}
-                                </button>
-                                <button className="note-btn cancel" onClick={() => { setEditingNote(null); setNoteValue('') }}>Cancel</button>
-                              </div>
-                            </div>
-                          ) : (
-                            <button className="add-note-btn" onClick={() => { setEditingNote(task.id); setNoteValue(note || '') }}>
-                              {note ? '✏️ Edit Note' : '💬 Add Note'}
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </>
-          )}
-
-          {/* ─── Team Notes Section ─── */}
-          <div className="team-notes-section">
-            <div className="team-notes-header">
-              <div className="team-notes-title-row">
-                <span style={{ fontSize: '24px' }}>📋</span>
-                <h2 className="team-notes-title">Team Notes</h2>
-              </div>
-              <p className="team-notes-sub">Shared scratchpad for decisions, blockers, and coordination</p>
-            </div>
-
-            {editingTeamNotes ? (
-              <div className="team-notes-editor">
-                <textarea
-                  className="team-notes-textarea"
-                  value={teamNoteDraft}
-                  onChange={e => setTeamNoteDraft(e.target.value)}
-                  placeholder={"Write team notes here...\n\nExamples:\n- Decided to use DataForSEO as primary keyword API\n- @Dev2 handling the crawler, @Dev1 on keyword UI\n- Blocker: Need GSC access from client before Phase 4\n- Next sync: Thursday 3pm EST"}
-                  autoFocus
-                  rows={12}
-                />
-                <div className="team-notes-actions">
-                  <button className="note-btn save" onClick={saveTeamNotes} disabled={saving}>
-                    {saving ? 'Saving...' : 'Save Notes'}
-                  </button>
-                  <button className="note-btn cancel" onClick={() => { setEditingTeamNotes(false); setTeamNoteDraft(teamNotes) }}>
-                    Cancel
-                  </button>
+                    )
+                  })}
                 </div>
-              </div>
-            ) : (
-              <div className="team-notes-display" onClick={() => { setEditingTeamNotes(true); setTeamNoteDraft(teamNotes) }}>
-                {teamNotes ? (
-                  <div className="team-notes-content">
-                    {teamNotes.split('\n').map((line, i) => (
-                      <p key={i} className={line.trim() === '' ? 'empty-line' : ''}>{line || '\u00A0'}</p>
-                    ))}
+              </>
+            )}
+          </div>
+
+          {/* ─── RIGHT: Detail / Notes Panel (50%) ─── */}
+          <div className="detail-pane">
+            {expandedTask ? (() => {
+              const task = activePhaseData?.tasks.find(t => t.id === expandedTask)
+              if (!task) return null
+              const isDone = task.status === 'done' || !!completedTasks[task.id]
+              const isHardcoded = task.status === 'done'
+              const note = taskNotes[task.id]
+              const completionInfo = completedTasks[task.id]
+              const isEditingThis = editingNote === task.id
+
+              return (
+                <div className="detail-content">
+                  {/* Detail Header */}
+                  <div className="detail-header">
+                    <div className="detail-id-badge" style={{ background: `${activeColor}22`, color: activeColor }}>{task.id}</div>
+                    <div className={`detail-status ${isDone ? 'done' : 'pending'}`} style={isDone ? { background: `${activeColor}22`, color: activeColor, borderColor: `${activeColor}44` } : {}}>
+                      {isDone ? (isHardcoded ? '✓ Shipped' : '✓ Done') : '○ To Do'}
+                    </div>
                   </div>
-                ) : (
-                  <div className="team-notes-empty">
-                    <span style={{ fontSize: '32px', opacity: 0.5 }}>💬</span>
-                    <p>No team notes yet. Click to start writing.</p>
+                  <h3 className="detail-title">{task.label}</h3>
+
+                  {/* Meta info */}
+                  <div className="detail-meta-section">
+                    {isHardcoded && (
+                      <div className="detail-meta-item">
+                        <span className="detail-meta-icon">🚀</span>
+                        <span>Built and deployed in production code</span>
+                      </div>
+                    )}
+                    {completionInfo?.at && (
+                      <div className="detail-meta-item">
+                        <span className="detail-meta-icon">📅</span>
+                        <span>Completed {new Date(completionInfo.at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        {completionInfo.by && <span className="detail-meta-by">by {completionInfo.by}</span>}
+                      </div>
+                    )}
                   </div>
-                )}
-                <div className="team-notes-edit-hint">Click to edit</div>
+
+                  {/* Notes Section */}
+                  <div className="detail-notes-section">
+                    <div className="detail-notes-label">
+                      <span>📝</span>
+                      <span>Task Notes</span>
+                    </div>
+
+                    {isEditingThis ? (
+                      <div className="detail-note-editor">
+                        <textarea
+                          className="detail-note-textarea"
+                          value={noteValue}
+                          onChange={e => setNoteValue(e.target.value)}
+                          placeholder={"Add notes for this task...\n\nIdeas:\n- Implementation approach\n- Blockers or dependencies\n- Who's working on it\n- Links to relevant docs/PRs"}
+                          autoFocus
+                          rows={10}
+                        />
+                        <div className="note-actions">
+                          <button className="note-btn save" onClick={() => saveNote(task.id)} disabled={saving}>
+                            {saving ? 'Saving...' : 'Save Note'}
+                          </button>
+                          <button className="note-btn cancel" onClick={() => { setEditingNote(null); setNoteValue('') }}>Cancel</button>
+                        </div>
+                      </div>
+                    ) : note ? (
+                      <div className="detail-note-content" onClick={() => { setEditingNote(task.id); setNoteValue(note) }}>
+                        {note.split('\n').map((line, i) => (
+                          <p key={i}>{line || '\u00A0'}</p>
+                        ))}
+                        <div className="detail-note-edit-hint">Click to edit</div>
+                      </div>
+                    ) : (
+                      <div className="detail-note-empty" onClick={() => { setEditingNote(task.id); setNoteValue('') }}>
+                        <span style={{ fontSize: '28px', opacity: 0.4 }}>💬</span>
+                        <p>No notes yet. Click to add notes.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })() : (
+              <div className="detail-empty">
+                <span style={{ fontSize: '40px', opacity: 0.3 }}>👈</span>
+                <p className="detail-empty-title">Select a task</p>
+                <p className="detail-empty-sub">Click on any task to view details and add notes</p>
               </div>
             )}
+
+            {/* ─── Team Notes (always visible at bottom of right pane) ─── */}
+            <div className="team-notes-section">
+              <div className="team-notes-header">
+                <div className="team-notes-title-row">
+                  <span style={{ fontSize: '20px' }}>📋</span>
+                  <h2 className="team-notes-title">Team Notes</h2>
+                </div>
+                <p className="team-notes-sub">Shared scratchpad for decisions, blockers, and coordination</p>
+              </div>
+
+              {editingTeamNotes ? (
+                <div className="team-notes-editor">
+                  <textarea
+                    className="team-notes-textarea"
+                    value={teamNoteDraft}
+                    onChange={e => setTeamNoteDraft(e.target.value)}
+                    placeholder={"Write team notes here...\n\nExamples:\n- Decided to use DataForSEO as primary keyword API\n- @Dev2 handling the crawler, @Dev1 on keyword UI\n- Blocker: Need GSC access from client before Phase 4\n- Next sync: Thursday 3pm EST"}
+                    autoFocus
+                    rows={8}
+                  />
+                  <div className="team-notes-actions">
+                    <button className="note-btn save" onClick={saveTeamNotes} disabled={saving}>
+                      {saving ? 'Saving...' : 'Save Notes'}
+                    </button>
+                    <button className="note-btn cancel" onClick={() => { setEditingTeamNotes(false); setTeamNoteDraft(teamNotes) }}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="team-notes-display" onClick={() => { setEditingTeamNotes(true); setTeamNoteDraft(teamNotes) }}>
+                  {teamNotes ? (
+                    <div className="team-notes-content">
+                      {teamNotes.split('\n').map((line, i) => (
+                        <p key={i} className={line.trim() === '' ? 'empty-line' : ''}>{line || '\u00A0'}</p>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="team-notes-empty">
+                      <span style={{ fontSize: '24px', opacity: 0.4 }}>💬</span>
+                      <p>No team notes yet. Click to start writing.</p>
+                    </div>
+                  )}
+                  <div className="team-notes-edit-hint">Click to edit</div>
+                </div>
+              )}
+            </div>
           </div>
         </main>
       </div>
@@ -727,8 +768,16 @@ const devStyles = `
   .stat-label { display: block; font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.06em; margin-top: 2px; }
   .last-updated { font-size: 10px; color: #334155; padding: 12px 10px 0; text-align: center; }
 
-  /* ── Task Area ── */
-  .task-area { flex: 1; padding: 28px 32px; overflow-y: auto; max-height: calc(100vh - 71px); }
+  /* ── Split Task Area ── */
+  .task-area-split { flex: 1; display: flex; max-height: calc(100vh - 71px); }
+  .task-list-pane {
+    width: 50%; min-width: 0; padding: 20px 16px; overflow-y: auto;
+    border-right: 1px solid rgba(51, 65, 85, 0.3);
+  }
+  .detail-pane {
+    width: 50%; min-width: 0; padding: 20px 24px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 20px;
+  }
 
   /* ── Phase Header ── */
   .phase-header {
@@ -760,9 +809,9 @@ const devStyles = `
     animation: fadeSlideIn 0.3s ease both;
     border-left: 3px solid transparent;
   }
-  .task-card:hover { background: rgba(30, 41, 59, 0.7); border-color: rgba(51, 65, 85, 0.5); }
+  .task-card:hover { background: rgba(30, 41, 59, 0.7); border-color: rgba(51, 65, 85, 0.5); cursor: pointer; }
   .task-card.done { border-left-color: var(--task-color); }
-  .task-card.expanded { background: rgba(30, 41, 59, 0.8); border-color: rgba(99, 102, 241, 0.2); }
+  .task-card.selected { background: rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.3); box-shadow: 0 0 0 1px rgba(99,102,241,0.1); }
   @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
   .task-top { display: flex; align-items: flex-start; gap: 14px; }
@@ -791,46 +840,86 @@ const devStyles = `
   }
   .task-status-pill.pending { background: #1e293b; color: #475569; }
 
-  /* ── Task Notes ── */
-  .task-note-display {
-    display: flex; gap: 8px; align-items: flex-start;
-    margin: 10px 0 0 38px; padding: 8px 12px;
-    background: rgba(99, 102, 241, 0.06); border-radius: 8px;
-    border-left: 3px solid rgba(99, 102, 241, 0.3);
-    font-size: 13px; color: #94a3b8; line-height: 1.5;
-    cursor: pointer; transition: all 0.15s;
+  .task-indicators { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .has-note-badge {
+    font-size: 16px; width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(251, 191, 36, 0.15); border-radius: 8px;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    animation: notePulse 2s ease-in-out infinite;
   }
-  .task-note-display:hover { background: rgba(99, 102, 241, 0.1); }
-  .note-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  @keyframes notePulse { 0%,100%{box-shadow: 0 0 0 0 rgba(251,191,36,0)} 50%{box-shadow: 0 0 0 4px rgba(251,191,36,0.1)} }
 
-  .task-expanded {
-    margin-top: 12px; padding-top: 12px; margin-left: 38px;
-    border-top: 1px solid rgba(51, 65, 85, 0.3);
+  /* ── Detail Pane ── */
+  .detail-content { flex: 1; }
+  .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .detail-id-badge {
+    font-size: 14px; font-weight: 800; padding: 6px 14px; border-radius: 8px;
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
   }
-  .task-meta {
-    font-size: 11px; color: #475569; margin-bottom: 10px;
-    display: flex; align-items: center; gap: 6px;
+  .detail-status {
+    font-size: 12px; font-weight: 700; padding: 5px 14px; border-radius: 20px;
+    border: 1px solid #334155;
   }
-  .task-meta::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: #475569; }
+  .detail-status.pending { background: #1e293b; color: #64748b; }
+  .detail-title { font-size: 17px; font-weight: 700; color: #f1f5f9; line-height: 1.6; margin: 0 0 20px; }
 
-  .add-note-btn {
-    background: rgba(51, 65, 85, 0.3); border: 1px dashed rgba(51, 65, 85, 0.6);
-    border-radius: 8px; padding: 8px 14px;
-    color: #64748b; font-size: 12px; font-weight: 600;
-    cursor: pointer; transition: all 0.15s;
-    display: inline-flex; align-items: center; gap: 6px;
+  .detail-meta-section { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+  .detail-meta-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: #94a3b8;
+    padding: 8px 12px; border-radius: 8px;
+    background: rgba(30, 41, 59, 0.5);
   }
-  .add-note-btn:hover { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3); color: #a5b4fc; }
+  .detail-meta-icon { font-size: 14px; }
+  .detail-meta-by { color: #64748b; margin-left: 4px; }
 
-  .note-editor { margin-top: 8px; }
-  .note-textarea {
-    width: 100%; padding: 10px 14px; border-radius: 10px;
+  .detail-notes-section { }
+  .detail-notes-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 700; color: #94a3b8;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  .detail-note-content {
+    position: relative;
+    background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(51, 65, 85, 0.4);
+    border-radius: 12px; padding: 20px; min-height: 120px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .detail-note-content:hover { border-color: rgba(99, 102, 241, 0.3); background: rgba(30, 41, 59, 0.7); }
+  .detail-note-content p { margin: 0 0 6px; font-size: 14px; color: #cbd5e1; line-height: 1.7; }
+  .detail-note-edit-hint {
+    position: absolute; bottom: 10px; right: 14px;
+    font-size: 10px; color: #334155; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .detail-note-content:hover .detail-note-edit-hint { color: #6366f1; }
+
+  .detail-note-empty {
+    text-align: center; padding: 32px 20px;
+    background: rgba(30, 41, 59, 0.3); border: 2px dashed rgba(51, 65, 85, 0.4);
+    border-radius: 12px; cursor: pointer; transition: all 0.2s;
+  }
+  .detail-note-empty:hover { border-color: rgba(99, 102, 241, 0.3); background: rgba(99, 102, 241, 0.05); }
+  .detail-note-empty p { color: #475569; font-size: 13px; margin: 8px 0 0; }
+
+  .detail-note-editor { }
+  .detail-note-textarea {
+    width: 100%; padding: 16px 20px; border-radius: 12px;
     border: 1px solid rgba(99, 102, 241, 0.3); background: rgba(15, 23, 42, 0.6);
-    color: #e2e8f0; font-size: 13px; line-height: 1.5; resize: vertical;
-    font-family: inherit; outline: none; transition: border-color 0.2s;
-    box-sizing: border-box;
+    color: #e2e8f0; font-size: 14px; line-height: 1.7; resize: vertical;
+    font-family: inherit; outline: none; min-height: 160px;
+    box-sizing: border-box; transition: border-color 0.2s;
   }
-  .note-textarea:focus { border-color: rgba(99, 102, 241, 0.6); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .detail-note-textarea:focus { border-color: rgba(99, 102, 241, 0.6); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+
+  .detail-empty {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px;
+  }
+  .detail-empty-title { font-size: 16px; font-weight: 700; color: #475569; margin: 0; }
+  .detail-empty-sub { font-size: 13px; color: #334155; margin: 0; }
   .note-actions { display: flex; gap: 8px; margin-top: 8px; }
   .note-btn {
     padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 700;
