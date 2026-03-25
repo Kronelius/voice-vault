@@ -19,6 +19,14 @@ const PROJECT_OVERVIEW = {
     { label: 'Hosting', value: 'Vercel (auto-deploy from GitHub master)' },
     { label: 'Repo', value: 'github.com/Kronelius/voice-vault' },
   ],
+  pipeline: [
+    { icon: '🎙️', label: 'Capture Voice', sub: 'Voice chunks, writing samples, tone analysis' },
+    { icon: '🕷️', label: 'Crawl & Audit', sub: 'Site structure, internal links, tech SEO' },
+    { icon: '🔑', label: 'Keyword Research', sub: 'Volume, difficulty, gaps, competitors' },
+    { icon: '🗺️', label: 'Strategy & Briefs', sub: 'Topic clusters, intent mapping, content briefs' },
+    { icon: '✍️', label: 'Generate Content', sub: 'Voice-matched, SEO-optimized drafts' },
+    { icon: '📊', label: 'Track & Optimize', sub: 'Rank tracking, decay detection, refresh' },
+  ],
   architecture: [
     { label: 'Voice Vault', desc: 'Voice profiling, writing samples, content editing with AI review — the foundation that makes generated content sound like you.' },
     { label: 'Website Scraping', desc: 'Crawl target sites, map internal link structure, audit technical SEO issues, track changes over time.' },
@@ -475,6 +483,29 @@ export default function DevDashboard() {
                 </div>
               </div>
 
+              {/* Pipeline Workflow */}
+              <div className="overview-card" style={{ marginTop: '0' }}>
+                <h3 className="overview-card-title"><span>⚡</span> Content Pipeline Workflow</h3>
+                <div className="pipeline-flow">
+                  {PROJECT_OVERVIEW.pipeline.map((step, i) => (
+                    <div key={i} className="pipeline-step">
+                      <div className="pipeline-node">
+                        <div className="pipeline-icon">{step.icon}</div>
+                        <div className="pipeline-label">{step.label}</div>
+                        <div className="pipeline-sub">{step.sub}</div>
+                      </div>
+                      {i < PROJECT_OVERVIEW.pipeline.length - 1 && (
+                        <div className="pipeline-arrow">
+                          <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+                            <path d="M0 10H28M28 10L20 3M28 10L20 17" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.5"/>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="overview-grid">
                 {/* Tech Stack */}
                 <div className="overview-card">
@@ -765,7 +796,8 @@ export default function DevDashboard() {
    ─────────────────────────────────────────── */
 const devStyles = `
   .dev-dash {
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     background: linear-gradient(135deg, #0f172a 0%, #131b2e 50%, #0f172a 100%);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #e2e8f0;
@@ -901,11 +933,15 @@ const devStyles = `
   .task-list-pane {
     width: 50%; min-width: 0; padding: 20px 16px; overflow-y: auto;
     border-right: 1px solid rgba(51, 65, 85, 0.3);
+    scrollbar-width: thin; scrollbar-color: #334155 transparent;
   }
   .detail-pane {
     width: 50%; min-width: 0; padding: 20px 24px; overflow-y: auto;
     display: flex; flex-direction: column; gap: 20px;
+    scrollbar-width: thin; scrollbar-color: #334155 transparent;
   }
+  .phase-sidebar { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+  .overview-pane { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
 
   /* ── Phase Header ── */
   .phase-header {
@@ -966,7 +1002,11 @@ const devStyles = `
     font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
     text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
   }
-  .task-status-pill.pending { background: #1e293b; color: #475569; }
+  .task-status-pill.pending {
+    background: rgba(251, 191, 36, 0.15); color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);
+  }
 
   .task-indicators { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .has-note-badge {
@@ -1210,4 +1250,44 @@ const devStyles = `
   .roadmap-desc { font-size: 12px; color: #64748b; margin: 0 0 8px; line-height: 1.5; }
   .roadmap-bar-outer { height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; }
   .roadmap-bar-inner { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+
+  /* ── Pipeline Workflow ── */
+  .pipeline-flow {
+    display: flex; align-items: flex-start; justify-content: center;
+    gap: 0; padding: 8px 0; overflow-x: auto;
+    scrollbar-width: thin; scrollbar-color: #334155 transparent;
+  }
+  .pipeline-step {
+    display: flex; align-items: center; flex-shrink: 0;
+  }
+  .pipeline-node {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; width: 130px; padding: 16px 8px;
+    border-radius: 14px; background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(51, 65, 85, 0.4);
+    transition: all 0.2s;
+  }
+  .pipeline-node:hover {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+  .pipeline-icon {
+    font-size: 28px; margin-bottom: 8px;
+    width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+    border-radius: 14px; border: 1px solid rgba(99,102,241,0.2);
+  }
+  .pipeline-label {
+    font-size: 12px; font-weight: 800; color: #e2e8f0;
+    margin-bottom: 4px; letter-spacing: -0.01em;
+  }
+  .pipeline-sub {
+    font-size: 10px; color: #64748b; line-height: 1.4;
+  }
+  .pipeline-arrow {
+    display: flex; align-items: center; padding: 0 4px;
+    flex-shrink: 0;
+  }
 `
