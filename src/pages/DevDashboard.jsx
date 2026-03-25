@@ -10,7 +10,8 @@ const PROJECT_PHASES = [
     id: 'phase-1',
     name: 'Phase 1 — Voice Vault Foundation',
     description: 'Core CMS, voice profiling, and design system',
-    status: 'complete',
+    icon: '🏗️',
+    color: '#22c55e',
     tasks: [
       { id: '1.01', label: 'Supabase schema design (voice_chunks, writing_samples, generated_content, voice_profiles, seo_metadata)', status: 'done' },
       { id: '1.02', label: 'Content CRUD — list, create, edit, delete with status workflow', status: 'done' },
@@ -34,7 +35,8 @@ const PROJECT_PHASES = [
     id: 'phase-2',
     name: 'Phase 2 — AI Integration',
     description: 'Claude-powered editing, review, and chat assistant',
-    status: 'complete',
+    icon: '🤖',
+    color: '#8b5cf6',
     tasks: [
       { id: '2.01', label: 'Vercel serverless API layer — shared Anthropic client, Supabase key lookup with env fallback', status: 'done' },
       { id: '2.02', label: 'Content Review endpoint — Claude analyzes lab edits against voice profile, returns structured notes', status: 'done' },
@@ -57,7 +59,8 @@ const PROJECT_PHASES = [
     id: 'phase-3',
     name: 'Phase 3 — Website Scraping & Site Audit',
     description: 'Crawl target websites, extract structure, map internal links, identify technical SEO issues',
-    status: 'upcoming',
+    icon: '🕷️',
+    color: '#f59e0b',
     tasks: [
       { id: '3.01', label: 'Website crawler engine — handle JS-rendered sites (Playwright/Puppeteer) + static HTML' },
       { id: '3.02', label: 'Page data extraction — URL, canonical, title, meta description, H1-H6 hierarchy, word count, reading level' },
@@ -76,7 +79,8 @@ const PROJECT_PHASES = [
     id: 'phase-4',
     name: 'Phase 4 — Keyword Intelligence',
     description: 'API integrations for keyword research, SERP analysis, and content gap identification',
-    status: 'upcoming',
+    icon: '🔑',
+    color: '#3b82f6',
     tasks: [
       { id: '4.01', label: 'DataForSEO API integration — keyword search volume, difficulty, CPC, trends' },
       { id: '4.02', label: 'DataForSEO — related keywords and keyword suggestions endpoints' },
@@ -96,7 +100,8 @@ const PROJECT_PHASES = [
     id: 'phase-5',
     name: 'Phase 5 — Content Strategy & Planning',
     description: 'Map keywords to content types, build topic clusters, generate content briefs',
-    status: 'upcoming',
+    icon: '🗺️',
+    color: '#ec4899',
     tasks: [
       { id: '5.01', label: 'Search intent classifier — informational, navigational, commercial investigation, transactional (rule-based + LLM hybrid)' },
       { id: '5.02', label: 'SERP-based intent validation — analyze what Google actually ranks to confirm intent classification' },
@@ -114,7 +119,8 @@ const PROJECT_PHASES = [
     id: 'phase-6',
     name: 'Phase 6 — SEO-Optimized Content Generation',
     description: 'Generate voice-matched, keyword-targeted content with automated SEO scoring',
-    status: 'upcoming',
+    icon: '✍️',
+    color: '#14b8a6',
     tasks: [
       { id: '6.01', label: 'Content brief → voice-matched draft pipeline — structured generation with brief + voice profile context' },
       { id: '6.02', label: 'Section-by-section generation — generate in parts for better quality control vs monolithic' },
@@ -132,7 +138,8 @@ const PROJECT_PHASES = [
     id: 'phase-7',
     name: 'Phase 7 — Publishing & Performance',
     description: 'Close the loop with analytics, rank tracking, and content decay detection',
-    status: 'upcoming',
+    icon: '📊',
+    color: '#f97316',
     tasks: [
       { id: '7.01', label: 'Google Analytics Data API (GA4) integration — sessions, bounce rate, time on page, conversions per article' },
       { id: '7.02', label: 'Rank tracking — weekly keyword position checks via DataForSEO or SerpAPI' },
@@ -149,7 +156,8 @@ const PROJECT_PHASES = [
     id: 'phase-8',
     name: 'Phase 8 — Platform & Scale',
     description: 'Authentication, multi-user, version history, and SaaS-ready infrastructure',
-    status: 'upcoming',
+    icon: '🚀',
+    color: '#6366f1',
     tasks: [
       { id: '8.01', label: 'Supabase Auth — proper email/password authentication replacing PIN gate' },
       { id: '8.02', label: 'Row-Level Security policies on all tables — per-user/team data isolation' },
@@ -181,17 +189,17 @@ export default function DevDashboard() {
   const [saving, setSaving] = useState(false)
   const [activePhase, setActivePhase] = useState('phase-1')
   const [lastUpdated, setLastUpdated] = useState(null)
+  const [teamNotes, setTeamNotes] = useState('')
+  const [editingTeamNotes, setEditingTeamNotes] = useState(false)
+  const [teamNoteDraft, setTeamNoteDraft] = useState('')
+  const [expandedTask, setExpandedTask] = useState(null)
 
   const DEV_PIN = '1234'
 
-  // Check session
   useEffect(() => {
-    if (sessionStorage.getItem('dev_auth') === 'true') {
-      setAuthenticated(true)
-    }
+    if (sessionStorage.getItem('dev_auth') === 'true') setAuthenticated(true)
   }, [])
 
-  // Load task states from Supabase
   useEffect(() => {
     if (!authenticated) return
     loadTasks()
@@ -208,6 +216,10 @@ export default function DevDashboard() {
     let latest = null
 
     ;(data || []).forEach(row => {
+      if (row.task_id === 'team_notes') {
+        setTeamNotes(row.notes || '')
+        return
+      }
       if (row.completed) completed[row.task_id] = { by: row.completed_by, at: row.completed_at }
       if (row.notes) notes[row.task_id] = row.notes
       if (!latest || new Date(row.updated_at) > new Date(latest)) latest = row.updated_at
@@ -222,30 +234,16 @@ export default function DevDashboard() {
   async function toggleTask(taskId) {
     const isCompleted = !!completedTasks[taskId]
     setSaving(true)
-
     if (isCompleted) {
-      // Uncomplete
       await supabase.from('project_tasks').upsert({
-        task_id: taskId,
-        completed: false,
-        completed_by: null,
-        completed_at: null,
+        task_id: taskId, completed: false, completed_by: null, completed_at: null,
         updated_at: new Date().toISOString(),
       })
-      setCompletedTasks(prev => {
-        const next = { ...prev }
-        delete next[taskId]
-        return next
-      })
+      setCompletedTasks(prev => { const next = { ...prev }; delete next[taskId]; return next })
     } else {
-      // Complete
       const now = new Date().toISOString()
       await supabase.from('project_tasks').upsert({
-        task_id: taskId,
-        completed: true,
-        completed_by: 'dev',
-        completed_at: now,
-        updated_at: now,
+        task_id: taskId, completed: true, completed_by: 'dev', completed_at: now, updated_at: now,
       })
       setCompletedTasks(prev => ({ ...prev, [taskId]: { by: 'dev', at: now } }))
     }
@@ -255,9 +253,7 @@ export default function DevDashboard() {
   async function saveNote(taskId) {
     setSaving(true)
     await supabase.from('project_tasks').upsert({
-      task_id: taskId,
-      notes: noteValue || null,
-      updated_at: new Date().toISOString(),
+      task_id: taskId, notes: noteValue || null, updated_at: new Date().toISOString(),
     })
     setTaskNotes(prev => noteValue ? { ...prev, [taskId]: noteValue } : (() => { const n = { ...prev }; delete n[taskId]; return n })())
     setEditingNote(null)
@@ -265,18 +261,16 @@ export default function DevDashboard() {
     setSaving(false)
   }
 
-  const handlePinSubmit = useCallback(() => {
-    if (pin === DEV_PIN) {
-      sessionStorage.setItem('dev_auth', 'true')
-      setAuthenticated(true)
-      setPinError(false)
-    } else {
-      setPinError(true)
-      setPin('')
-    }
-  }, [pin])
+  async function saveTeamNotes() {
+    setSaving(true)
+    await supabase.from('project_tasks').upsert({
+      task_id: 'team_notes', notes: teamNoteDraft, updated_at: new Date().toISOString(),
+    })
+    setTeamNotes(teamNoteDraft)
+    setEditingTeamNotes(false)
+    setSaving(false)
+  }
 
-  // Compute stats
   const allTasks = PROJECT_PHASES.flatMap(p => p.tasks)
   const totalTasks = allTasks.length
   const preCompleted = allTasks.filter(t => t.status === 'done').length
@@ -293,216 +287,248 @@ export default function DevDashboard() {
   /* ─── Login Gate ─── */
   if (!authenticated) {
     return (
-      <div style={styles.loginContainer}>
-        <div style={styles.loginCard}>
-          <div style={styles.loginIcon}>🔧</div>
-          <h1 style={styles.loginTitle}>Dev Dashboard</h1>
-          <p style={styles.loginSub}>Enter developer PIN to continue</p>
-          <div style={styles.pinRow}>
+      <div className="dev-dash" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1a1033 50%, #0f172a 100%)' }}>
+        <style>{devStyles}</style>
+        <div className="login-card">
+          <div className="login-glow" />
+          <div style={{ fontSize: '56px', marginBottom: '8px' }}>🔧</div>
+          <h1 className="login-title">Dev Dashboard</h1>
+          <p className="login-sub">Enter developer PIN to continue</p>
+          <div className="pin-row">
             {[0, 1, 2, 3].map(i => (
-              <div key={i} style={{
-                ...styles.pinDot,
-                ...(pin.length > i ? styles.pinDotFilled : {}),
-                ...(pinError ? styles.pinDotError : {}),
-              }} />
+              <div key={i} className={`pin-dot ${pin.length > i ? 'filled' : ''} ${pinError ? 'error' : ''}`} />
             ))}
           </div>
-          <div style={styles.numpad}>
+          <div className="numpad">
             {[1,2,3,4,5,6,7,8,9,null,0,'⌫'].map((key, i) => (
               <button
                 key={i}
-                style={{
-                  ...styles.numKey,
-                  ...(key === null ? styles.numKeyEmpty : {}),
-                }}
+                className={`num-key ${key === null ? 'empty' : ''} ${key === '⌫' ? 'del' : ''}`}
                 onClick={() => {
                   if (key === null) return
                   if (key === '⌫') { setPin(p => p.slice(0, -1)); setPinError(false); return }
                   const next = pin + key
-                  setPin(next)
-                  setPinError(false)
+                  setPin(next); setPinError(false)
                   if (next.length === 4) {
-                    if (next === DEV_PIN) {
-                      sessionStorage.setItem('dev_auth', 'true')
-                      setAuthenticated(true)
-                    } else {
-                      setPinError(true)
-                      setTimeout(() => setPin(''), 400)
-                    }
+                    if (next === DEV_PIN) { sessionStorage.setItem('dev_auth', 'true'); setAuthenticated(true) }
+                    else { setPinError(true); setTimeout(() => setPin(''), 400) }
                   }
                 }}
                 disabled={key === null}
-              >
-                {key}
-              </button>
+              >{key}</button>
             ))}
           </div>
-          <button style={styles.backLink} onClick={() => navigate('/')}>
-            ← Back to Voice Vault
-          </button>
+          <button className="back-link" onClick={() => navigate('/')}>← Back to Voice Vault</button>
         </div>
       </div>
     )
   }
 
-  /* ─── Main Dashboard ─── */
   const activePhaseData = PROJECT_PHASES.find(p => p.id === activePhase)
+  const activeColor = activePhaseData?.color || '#3b82f6'
 
+  /* ─── Main Dashboard ─── */
   return (
-    <div style={styles.container}>
+    <div className="dev-dash">
+      <style>{devStyles}</style>
+
       {/* Top Bar */}
-      <header style={styles.topBar}>
-        <div style={styles.topLeft}>
-          <span style={styles.logo}>⚡</span>
+      <header className="top-bar">
+        <div className="top-left">
+          <div className="logo-mark">⚡</div>
           <div>
-            <h1 style={styles.topTitle}>SEO Content Engine</h1>
-            <p style={styles.topSub}>Development Status Dashboard</p>
+            <h1 className="top-title">SEO Content Engine</h1>
+            <p className="top-sub">Development Status Dashboard</p>
           </div>
         </div>
-        <div style={styles.topRight}>
-          <div style={styles.overallProgress}>
-            <div style={styles.progressLabel}>
-              <span>Overall Progress</span>
-              <span style={styles.progressPct}>{overallProgress}%</span>
+        <div className="top-right">
+          <div className="overall-progress">
+            <div className="progress-header">
+              <span className="progress-label">Overall Progress</span>
+              <span className="progress-pct">{overallProgress}%</span>
             </div>
-            <div style={styles.progressBarOuter}>
-              <div style={{ ...styles.progressBarInner, width: `${overallProgress}%` }} />
+            <div className="progress-bar-outer">
+              <div className="progress-bar-inner" style={{ width: `${overallProgress}%` }} />
             </div>
-            <span style={styles.progressDetail}>{totalCompleted} / {totalTasks} tasks</span>
+            <span className="progress-detail">{totalCompleted} of {totalTasks} tasks complete</span>
           </div>
-          <button style={styles.vaultLink} onClick={() => navigate('/')}>
-            Voice Vault →
+          <button className="vault-link" onClick={() => navigate('/')}>
+            <span style={{ fontSize: '16px' }}>🏠</span> Voice Vault
           </button>
         </div>
       </header>
 
-      <div style={styles.body}>
+      <div className="dash-body">
         {/* Phase Sidebar */}
-        <nav style={styles.phaseSidebar}>
-          <div style={styles.phaseListLabel}>PHASES</div>
+        <nav className="phase-sidebar">
+          <div className="phase-list-label">DEVELOPMENT PHASES</div>
           {PROJECT_PHASES.map(phase => {
             const stats = getPhaseStats(phase)
             const isActive = phase.id === activePhase
             return (
               <button
                 key={phase.id}
-                style={{
-                  ...styles.phaseItem,
-                  ...(isActive ? styles.phaseItemActive : {}),
-                }}
+                className={`phase-item ${isActive ? 'active' : ''}`}
                 onClick={() => setActivePhase(phase.id)}
+                style={{ '--phase-color': phase.color }}
               >
-                <div style={styles.phaseItemTop}>
-                  <span style={styles.phaseItemName}>{phase.name.split(' — ')[0]}</span>
-                  <span style={{
-                    ...styles.phaseItemPct,
-                    color: stats.pct === 100 ? '#22c55e' : stats.pct > 0 ? '#f59e0b' : '#64748b',
-                  }}>{stats.pct}%</span>
+                <div className="phase-item-row">
+                  <span className="phase-icon">{phase.icon}</span>
+                  <span className="phase-item-name">{phase.name.replace(/Phase \d+ — /, '')}</span>
+                  <span className="phase-item-pct" style={{ color: stats.pct === 100 ? '#22c55e' : stats.pct > 0 ? '#f59e0b' : '#475569' }}>
+                    {stats.pct}%
+                  </span>
                 </div>
-                <div style={styles.miniBarOuter}>
-                  <div style={{
-                    ...styles.miniBarInner,
+                <div className="mini-bar-outer">
+                  <div className="mini-bar-inner" style={{
                     width: `${stats.pct}%`,
-                    background: stats.pct === 100 ? '#22c55e' : stats.pct > 0 ? '#f59e0b' : '#334155',
+                    background: stats.pct === 100 ? '#22c55e' : stats.pct > 0 ? phase.color : '#1e293b',
                   }} />
                 </div>
               </button>
             )
           })}
-          {lastUpdated && (
-            <div style={styles.lastUpdated}>
-              Last update: {new Date(lastUpdated).toLocaleDateString()}
+
+          {/* Quick Stats */}
+          <div className="sidebar-stats">
+            <div className="stat-card">
+              <span className="stat-num">{PROJECT_PHASES.filter(p => getPhaseStats(p).pct === 100).length}</span>
+              <span className="stat-label">Phases Done</span>
             </div>
+            <div className="stat-card">
+              <span className="stat-num">{totalCompleted}</span>
+              <span className="stat-label">Tasks Done</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-num">{totalTasks - totalCompleted}</span>
+              <span className="stat-label">Remaining</span>
+            </div>
+          </div>
+
+          {lastUpdated && (
+            <div className="last-updated">Last sync: {new Date(lastUpdated).toLocaleDateString()}</div>
           )}
         </nav>
 
-        {/* Task List */}
-        <main style={styles.taskArea}>
+        {/* Task Area */}
+        <main className="task-area">
           {activePhaseData && (
             <>
-              <div style={styles.phaseHeader}>
-                <h2 style={styles.phaseTitle}>{activePhaseData.name}</h2>
-                <p style={styles.phaseDesc}>{activePhaseData.description}</p>
-                <div style={styles.phaseStats}>
+              {/* Phase Header */}
+              <div className="phase-header" style={{ '--phase-color': activeColor }}>
+                <div className="phase-header-icon">{activePhaseData.icon}</div>
+                <div className="phase-header-text">
+                  <h2 className="phase-title">{activePhaseData.name}</h2>
+                  <p className="phase-desc">{activePhaseData.description}</p>
+                </div>
+                <div className="phase-header-stats">
                   {(() => {
                     const s = getPhaseStats(activePhaseData)
                     return (
                       <>
-                        <span style={styles.statBadge}>{s.done} / {s.total} complete</span>
-                        <span style={{
-                          ...styles.statusBadge,
-                          background: s.pct === 100 ? '#dcfce7' : s.pct > 0 ? '#fef3c7' : '#f1f5f9',
-                          color: s.pct === 100 ? '#166534' : s.pct > 0 ? '#92400e' : '#475569',
-                        }}>
-                          {s.pct === 100 ? '✓ Complete' : s.pct > 0 ? '◐ In Progress' : '○ Not Started'}
-                        </span>
+                        <div className="phase-ring" style={{ '--ring-pct': s.pct, '--ring-color': activeColor }}>
+                          <svg viewBox="0 0 36 36" className="ring-svg">
+                            <path className="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path className="ring-fill" strokeDasharray={`${s.pct}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" style={{ stroke: activeColor }} />
+                          </svg>
+                          <span className="ring-text">{s.pct}%</span>
+                        </div>
+                        <span className="phase-stat-detail">{s.done}/{s.total} tasks</span>
                       </>
                     )
                   })()}
                 </div>
               </div>
 
-              <div style={styles.taskList}>
-                {activePhaseData.tasks.map(task => {
+              {/* Task Cards */}
+              <div className="task-list">
+                {activePhaseData.tasks.map((task, idx) => {
                   const isDone = task.status === 'done' || !!completedTasks[task.id]
                   const isHardcoded = task.status === 'done'
                   const note = taskNotes[task.id]
+                  const isExpanded = expandedTask === task.id
                   const isEditingThis = editingNote === task.id
+                  const completionInfo = completedTasks[task.id]
 
                   return (
-                    <div key={task.id} style={{
-                      ...styles.taskRow,
-                      ...(isDone ? styles.taskRowDone : {}),
-                    }}>
-                      <div style={styles.taskMain}>
+                    <div
+                      key={task.id}
+                      className={`task-card ${isDone ? 'done' : ''} ${isExpanded ? 'expanded' : ''}`}
+                      style={{ '--task-color': activeColor, animationDelay: `${idx * 30}ms` }}
+                    >
+                      <div className="task-top">
+                        {/* Checkbox */}
                         <button
-                          style={{
-                            ...styles.checkbox,
-                            ...(isDone ? styles.checkboxDone : {}),
-                          }}
+                          className={`task-check ${isDone ? 'checked' : ''}`}
+                          style={isDone ? { background: activeColor, borderColor: activeColor } : {}}
                           onClick={() => !isHardcoded && toggleTask(task.id)}
                           disabled={isHardcoded || saving}
-                          title={isHardcoded ? 'Completed in shipped code' : isDone ? 'Mark incomplete' : 'Mark complete'}
                         >
-                          {isDone && <span style={styles.checkmark}>✓</span>}
+                          {isDone && (
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                              <path d="M2 6L5 9L10 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          )}
                         </button>
-                        <div style={styles.taskContent}>
-                          <span style={styles.taskId}>{task.id}</span>
-                          <span style={{
-                            ...styles.taskLabel,
-                            ...(isDone ? styles.taskLabelDone : {}),
-                          }}>{task.label}</span>
+
+                        {/* Content */}
+                        <div className="task-body" onClick={() => setExpandedTask(isExpanded ? null : task.id)}>
+                          <div className="task-id-badge" style={{ background: isDone ? `${activeColor}22` : '#1e293b', color: isDone ? activeColor : '#64748b' }}>
+                            {task.id}
+                          </div>
+                          <p className={`task-label ${isDone ? 'done' : ''}`}>{task.label}</p>
                         </div>
-                        <button
-                          style={styles.noteToggle}
-                          onClick={() => {
-                            if (isEditingThis) {
-                              setEditingNote(null)
-                            } else {
-                              setEditingNote(task.id)
-                              setNoteValue(note || '')
-                            }
-                          }}
-                          title="Add note"
-                        >
-                          {note ? '📝' : '＋'}
-                        </button>
+
+                        {/* Status Pill */}
+                        <div className={`task-status-pill ${isDone ? 'done' : 'pending'}`} style={isDone ? { background: `${activeColor}22`, color: activeColor } : {}}>
+                          {isDone ? (isHardcoded ? 'Shipped' : 'Done') : 'To Do'}
+                        </div>
                       </div>
+
+                      {/* Note Display (always visible if exists) */}
                       {note && !isEditingThis && (
-                        <div style={styles.noteDisplay}>{note}</div>
+                        <div className="task-note-display" onClick={() => { setEditingNote(task.id); setNoteValue(note) }}>
+                          <span className="note-icon">📝</span>
+                          <span>{note}</span>
+                        </div>
                       )}
-                      {isEditingThis && (
-                        <div style={styles.noteEditor}>
-                          <input
-                            style={styles.noteInput}
-                            value={noteValue}
-                            onChange={e => setNoteValue(e.target.value)}
-                            placeholder="Add a note..."
-                            autoFocus
-                            onKeyDown={e => e.key === 'Enter' && saveNote(task.id)}
-                          />
-                          <button style={styles.noteSave} onClick={() => saveNote(task.id)} disabled={saving}>Save</button>
-                          <button style={styles.noteCancel} onClick={() => setEditingNote(null)}>Cancel</button>
+
+                      {/* Expanded Area */}
+                      {isExpanded && (
+                        <div className="task-expanded">
+                          {completionInfo?.at && (
+                            <div className="task-meta">
+                              Completed {new Date(completionInfo.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              {completionInfo.by && ` by ${completionInfo.by}`}
+                            </div>
+                          )}
+                          {isHardcoded && (
+                            <div className="task-meta">Built and deployed in production code</div>
+                          )}
+
+                          {/* Note Editor */}
+                          {isEditingThis ? (
+                            <div className="note-editor">
+                              <textarea
+                                className="note-textarea"
+                                value={noteValue}
+                                onChange={e => setNoteValue(e.target.value)}
+                                placeholder="Add a note — blockers, decisions, context..."
+                                autoFocus
+                                rows={3}
+                              />
+                              <div className="note-actions">
+                                <button className="note-btn save" onClick={() => saveNote(task.id)} disabled={saving}>
+                                  {saving ? 'Saving...' : 'Save Note'}
+                                </button>
+                                <button className="note-btn cancel" onClick={() => { setEditingNote(null); setNoteValue('') }}>Cancel</button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button className="add-note-btn" onClick={() => { setEditingNote(task.id); setNoteValue(note || '') }}>
+                              {note ? '✏️ Edit Note' : '💬 Add Note'}
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -511,6 +537,54 @@ export default function DevDashboard() {
               </div>
             </>
           )}
+
+          {/* ─── Team Notes Section ─── */}
+          <div className="team-notes-section">
+            <div className="team-notes-header">
+              <div className="team-notes-title-row">
+                <span style={{ fontSize: '24px' }}>📋</span>
+                <h2 className="team-notes-title">Team Notes</h2>
+              </div>
+              <p className="team-notes-sub">Shared scratchpad for decisions, blockers, and coordination</p>
+            </div>
+
+            {editingTeamNotes ? (
+              <div className="team-notes-editor">
+                <textarea
+                  className="team-notes-textarea"
+                  value={teamNoteDraft}
+                  onChange={e => setTeamNoteDraft(e.target.value)}
+                  placeholder={"Write team notes here...\n\nExamples:\n- Decided to use DataForSEO as primary keyword API\n- @Dev2 handling the crawler, @Dev1 on keyword UI\n- Blocker: Need GSC access from client before Phase 4\n- Next sync: Thursday 3pm EST"}
+                  autoFocus
+                  rows={12}
+                />
+                <div className="team-notes-actions">
+                  <button className="note-btn save" onClick={saveTeamNotes} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save Notes'}
+                  </button>
+                  <button className="note-btn cancel" onClick={() => { setEditingTeamNotes(false); setTeamNoteDraft(teamNotes) }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="team-notes-display" onClick={() => { setEditingTeamNotes(true); setTeamNoteDraft(teamNotes) }}>
+                {teamNotes ? (
+                  <div className="team-notes-content">
+                    {teamNotes.split('\n').map((line, i) => (
+                      <p key={i} className={line.trim() === '' ? 'empty-line' : ''}>{line || '\u00A0'}</p>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="team-notes-empty">
+                    <span style={{ fontSize: '32px', opacity: 0.5 }}>💬</span>
+                    <p>No team notes yet. Click to start writing.</p>
+                  </div>
+                )}
+                <div className="team-notes-edit-hint">Click to edit</div>
+              </div>
+            )}
+          </div>
         </main>
       </div>
     </div>
@@ -518,187 +592,292 @@ export default function DevDashboard() {
 }
 
 /* ───────────────────────────────────────────
-   Styles — Professional/Clean (not Analog Warmth)
+   CSS — Embedded stylesheet
    ─────────────────────────────────────────── */
-const styles = {
-  // Login
-  loginContainer: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#0f172a',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  },
-  loginCard: {
-    background: '#1e293b',
-    borderRadius: '16px',
-    padding: '48px 40px',
-    textAlign: 'center',
-    boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
-    minWidth: '320px',
-  },
-  loginIcon: { fontSize: '48px', marginBottom: '16px' },
-  loginTitle: { color: '#f1f5f9', fontSize: '24px', fontWeight: 700, margin: '0 0 8px' },
-  loginSub: { color: '#94a3b8', fontSize: '14px', margin: '0 0 32px' },
-  pinRow: { display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '32px' },
-  pinDot: {
-    width: '16px', height: '16px', borderRadius: '50%',
-    border: '2px solid #475569', background: 'transparent',
-    transition: 'all 0.15s',
-  },
-  pinDotFilled: { background: '#3b82f6', borderColor: '#3b82f6' },
-  pinDotError: { background: '#ef4444', borderColor: '#ef4444' },
-  numpad: {
-    display: 'grid', gridTemplateColumns: 'repeat(3, 64px)',
-    gap: '8px', justifyContent: 'center', marginBottom: '24px',
-  },
-  numKey: {
-    width: '64px', height: '52px', borderRadius: '10px',
-    border: '1px solid #334155', background: '#0f172a',
-    color: '#e2e8f0', fontSize: '20px', fontWeight: 600,
-    cursor: 'pointer', transition: 'all 0.1s',
-  },
-  numKeyEmpty: { visibility: 'hidden' },
-  backLink: {
-    background: 'none', border: 'none', color: '#64748b',
-    fontSize: '13px', cursor: 'pointer', marginTop: '8px',
-  },
+const devStyles = `
+  .dev-dash {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #131b2e 50%, #0f172a 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #e2e8f0;
+    cursor: default;
+  }
 
-  // Main layout
-  container: {
-    minHeight: '100vh',
-    background: '#0f172a',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    color: '#e2e8f0',
-  },
-  topBar: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '16px 32px',
-    borderBottom: '1px solid #1e293b',
-    background: '#0f172a',
-    position: 'sticky', top: 0, zIndex: 10,
-  },
-  topLeft: { display: 'flex', alignItems: 'center', gap: '12px' },
-  logo: { fontSize: '28px' },
-  topTitle: { fontSize: '18px', fontWeight: 700, margin: 0, color: '#f1f5f9' },
-  topSub: { fontSize: '12px', color: '#64748b', margin: 0 },
-  topRight: { display: 'flex', alignItems: 'center', gap: '24px' },
-  overallProgress: { minWidth: '240px' },
-  progressLabel: { display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94a3b8', marginBottom: '4px' },
-  progressPct: { fontWeight: 700, color: '#3b82f6' },
-  progressBarOuter: { height: '6px', background: '#1e293b', borderRadius: '3px', overflow: 'hidden' },
-  progressBarInner: { height: '100%', background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)', borderRadius: '3px', transition: 'width 0.5s ease' },
-  progressDetail: { fontSize: '11px', color: '#64748b' },
-  vaultLink: {
-    background: 'none', border: '1px solid #334155', borderRadius: '8px',
-    padding: '8px 16px', color: '#94a3b8', fontSize: '13px',
-    cursor: 'pointer', whiteSpace: 'nowrap',
-  },
+  /* ── Login ── */
+  .login-card {
+    position: relative;
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 24px;
+    padding: 48px 40px;
+    text-align: center;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 80px rgba(99, 102, 241, 0.08);
+    min-width: 340px;
+    overflow: hidden;
+  }
+  .login-glow {
+    position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .login-title { color: #f1f5f9; font-size: 26px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .login-sub { color: #94a3b8; font-size: 14px; margin: 0 0 32px; }
+  .pin-row { display: flex; gap: 14px; justify-content: center; margin-bottom: 32px; }
+  .pin-dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid #475569; background: transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .pin-dot.filled { background: #6366f1; border-color: #6366f1; box-shadow: 0 0 12px rgba(99,102,241,0.5); }
+  .pin-dot.error { background: #ef4444; border-color: #ef4444; box-shadow: 0 0 12px rgba(239,68,68,0.5); animation: shake 0.4s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .numpad { display: grid; grid-template-columns: repeat(3, 68px); gap: 10px; justify-content: center; margin-bottom: 24px; }
+  .num-key {
+    width: 68px; height: 54px; border-radius: 12px;
+    border: 1px solid #334155; background: rgba(15, 23, 42, 0.6);
+    color: #e2e8f0; font-size: 22px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .num-key:hover:not(.empty) { background: rgba(99, 102, 241, 0.15); border-color: #6366f1; }
+  .num-key:active:not(.empty) { transform: scale(0.95); }
+  .num-key.empty { visibility: hidden; }
+  .num-key.del { font-size: 18px; color: #94a3b8; background: transparent; border-color: transparent; }
+  .back-link { background: none; border: none; color: #64748b; font-size: 13px; cursor: pointer; margin-top: 8px; transition: color 0.15s; }
+  .back-link:hover { color: #94a3b8; }
 
-  // Body
-  body: { display: 'flex', minHeight: 'calc(100vh - 65px)' },
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px;
+    background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .top-left { display: flex; align-items: center; gap: 14px; }
+  .logo-mark {
+    font-size: 24px; width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 12px; box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  }
+  .top-title { font-size: 17px; font-weight: 800; margin: 0; color: #f1f5f9; letter-spacing: -0.02em; }
+  .top-sub { font-size: 11px; color: #64748b; margin: 0; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+  .top-right { display: flex; align-items: center; gap: 20px; }
+  .overall-progress { min-width: 220px; }
+  .progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .progress-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .progress-pct { font-size: 18px; font-weight: 800; background: linear-gradient(90deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .progress-bar-outer { height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; }
+  .progress-bar-inner { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); border-radius: 4px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+  .progress-bar-inner::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%); animation: shimmer 2s infinite; }
+  @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+  .progress-detail { font-size: 11px; color: #475569; margin-top: 4px; display: block; }
+  .vault-link {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 10px; padding: 8px 16px; color: #a5b4fc; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .vault-link:hover { background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.5); }
 
-  // Phase sidebar
-  phaseSidebar: {
-    width: '260px', minWidth: '260px',
-    borderRight: '1px solid #1e293b',
-    padding: '16px 12px',
-    background: '#0f172a',
-    overflowY: 'auto',
-  },
-  phaseListLabel: {
-    fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em',
-    color: '#475569', padding: '0 8px 12px', textTransform: 'uppercase',
-  },
-  phaseItem: {
-    display: 'block', width: '100%', textAlign: 'left',
-    padding: '10px 12px', marginBottom: '4px',
-    background: 'transparent', border: '1px solid transparent',
-    borderRadius: '8px', cursor: 'pointer',
-    transition: 'all 0.15s',
-    color: '#cbd5e1',
-  },
-  phaseItemActive: {
-    background: '#1e293b',
-    border: '1px solid #334155',
-  },
-  phaseItemTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' },
-  phaseItemName: { fontSize: '13px', fontWeight: 600 },
-  phaseItemPct: { fontSize: '12px', fontWeight: 700 },
-  miniBarOuter: { height: '3px', background: '#1e293b', borderRadius: '2px', overflow: 'hidden' },
-  miniBarInner: { height: '100%', borderRadius: '2px', transition: 'width 0.5s ease' },
-  lastUpdated: { fontSize: '11px', color: '#475569', padding: '16px 8px 0', borderTop: '1px solid #1e293b', marginTop: '12px' },
+  /* ── Body Layout ── */
+  .dash-body { display: flex; min-height: calc(100vh - 71px); }
 
-  // Task area
-  taskArea: { flex: 1, padding: '32px', overflowY: 'auto' },
-  phaseHeader: { marginBottom: '28px' },
-  phaseTitle: { fontSize: '22px', fontWeight: 700, margin: '0 0 6px', color: '#f1f5f9' },
-  phaseDesc: { fontSize: '14px', color: '#94a3b8', margin: '0 0 16px' },
-  phaseStats: { display: 'flex', gap: '12px', alignItems: 'center' },
-  statBadge: { fontSize: '13px', color: '#94a3b8', fontWeight: 500 },
-  statusBadge: { fontSize: '12px', fontWeight: 600, padding: '4px 12px', borderRadius: '20px' },
+  /* ── Phase Sidebar ── */
+  .phase-sidebar {
+    width: 280px; min-width: 280px; border-right: 1px solid rgba(51,65,85,0.3);
+    padding: 20px 14px; overflow-y: auto;
+    background: rgba(15, 23, 42, 0.4);
+  }
+  .phase-list-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+    color: #475569; padding: 0 10px 14px; text-transform: uppercase;
+  }
+  .phase-item {
+    display: block; width: 100%; text-align: left;
+    padding: 12px 14px; margin-bottom: 4px;
+    background: transparent; border: 1px solid transparent;
+    border-radius: 12px; cursor: pointer; transition: all 0.2s; color: #94a3b8;
+  }
+  .phase-item:hover { background: rgba(30, 41, 59, 0.5); }
+  .phase-item.active {
+    background: rgba(30, 41, 59, 0.8); border-color: rgba(51, 65, 85, 0.6);
+    color: #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border-left: 3px solid var(--phase-color);
+  }
+  .phase-item-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .phase-icon { font-size: 18px; }
+  .phase-item-name { flex: 1; font-size: 13px; font-weight: 600; }
+  .phase-item-pct { font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .mini-bar-outer { height: 3px; background: rgba(30,41,59,0.8); border-radius: 2px; overflow: hidden; margin-left: 28px; }
+  .mini-bar-inner { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
 
-  // Task rows
-  taskList: { display: 'flex', flexDirection: 'column', gap: '2px' },
-  taskRow: {
-    padding: '12px 16px',
-    borderRadius: '8px',
-    background: '#1e293b',
-    border: '1px solid #1e293b',
-    transition: 'all 0.15s',
-  },
-  taskRowDone: { opacity: 0.65, background: '#0f172a', border: '1px solid transparent' },
-  taskMain: { display: 'flex', alignItems: 'flex-start', gap: '12px' },
-  checkbox: {
-    width: '22px', height: '22px', minWidth: '22px',
-    borderRadius: '6px', border: '2px solid #475569',
-    background: 'transparent', cursor: 'pointer',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'all 0.15s', marginTop: '1px', padding: 0,
-  },
-  checkboxDone: { background: '#22c55e', borderColor: '#22c55e' },
-  checkmark: { color: '#fff', fontSize: '13px', fontWeight: 700, lineHeight: 1 },
-  taskContent: { flex: 1, display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' },
-  taskId: {
-    fontSize: '11px', fontWeight: 700, color: '#475569',
-    fontFamily: '"SF Mono", "Fira Code", monospace',
-    minWidth: '32px',
-  },
-  taskLabel: { fontSize: '14px', color: '#cbd5e1', lineHeight: 1.5 },
-  taskLabelDone: { textDecoration: 'line-through', color: '#64748b' },
-  noteToggle: {
-    background: 'none', border: 'none', color: '#475569',
-    fontSize: '14px', cursor: 'pointer', padding: '2px 6px',
-    borderRadius: '4px', minWidth: '28px',
-  },
+  .sidebar-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(51,65,85,0.3);
+  }
+  .stat-card {
+    text-align: center; padding: 10px 4px;
+    background: rgba(30,41,59,0.5); border-radius: 10px;
+    border: 1px solid rgba(51,65,85,0.3);
+  }
+  .stat-num { display: block; font-size: 20px; font-weight: 800; color: #f1f5f9; }
+  .stat-label { display: block; font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.06em; margin-top: 2px; }
+  .last-updated { font-size: 10px; color: #334155; padding: 12px 10px 0; text-align: center; }
 
-  // Notes
-  noteDisplay: {
-    marginLeft: '34px', marginTop: '6px',
-    fontSize: '12px', color: '#64748b',
-    fontStyle: 'italic', paddingLeft: '8px',
-    borderLeft: '2px solid #334155',
-  },
-  noteEditor: {
-    display: 'flex', gap: '8px', marginLeft: '34px', marginTop: '8px',
-  },
-  noteInput: {
-    flex: 1, padding: '6px 10px', borderRadius: '6px',
-    border: '1px solid #334155', background: '#0f172a',
-    color: '#e2e8f0', fontSize: '13px', outline: 'none',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  },
-  noteSave: {
-    padding: '6px 14px', borderRadius: '6px',
-    background: '#3b82f6', border: 'none',
-    color: '#fff', fontSize: '12px', fontWeight: 600,
-    cursor: 'pointer',
-  },
-  noteCancel: {
-    padding: '6px 14px', borderRadius: '6px',
-    background: 'transparent', border: '1px solid #334155',
-    color: '#94a3b8', fontSize: '12px',
-    cursor: 'pointer',
-  },
-}
+  /* ── Task Area ── */
+  .task-area { flex: 1; padding: 28px 32px; overflow-y: auto; max-height: calc(100vh - 71px); }
+
+  /* ── Phase Header ── */
+  .phase-header {
+    display: flex; align-items: center; gap: 20px;
+    padding: 24px 28px; margin-bottom: 24px;
+    background: linear-gradient(135deg, rgba(30,41,59,0.6) 0%, rgba(30,41,59,0.3) 100%);
+    border: 1px solid rgba(51,65,85,0.4); border-radius: 16px;
+    border-left: 4px solid var(--phase-color);
+  }
+  .phase-header-icon { font-size: 40px; }
+  .phase-header-text { flex: 1; }
+  .phase-title { font-size: 20px; font-weight: 800; margin: 0 0 4px; color: #f1f5f9; letter-spacing: -0.02em; }
+  .phase-desc { font-size: 13px; color: #94a3b8; margin: 0; line-height: 1.5; }
+  .phase-header-stats { text-align: center; }
+  .phase-ring { position: relative; width: 64px; height: 64px; }
+  .ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: #1e293b; stroke-width: 3; }
+  .ring-fill { fill: none; stroke-width: 3; stroke-linecap: round; transition: stroke-dasharray 0.6s ease; }
+  .ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 14px; font-weight: 800; color: #f1f5f9; }
+  .phase-stat-detail { display: block; font-size: 11px; color: #64748b; margin-top: 4px; font-weight: 600; }
+
+  /* ── Task Cards ── */
+  .task-list { display: flex; flex-direction: column; gap: 6px; }
+  .task-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(51, 65, 85, 0.3);
+    border-radius: 12px; padding: 14px 18px;
+    transition: all 0.2s; cursor: default;
+    animation: fadeSlideIn 0.3s ease both;
+    border-left: 3px solid transparent;
+  }
+  .task-card:hover { background: rgba(30, 41, 59, 0.7); border-color: rgba(51, 65, 85, 0.5); }
+  .task-card.done { border-left-color: var(--task-color); }
+  .task-card.expanded { background: rgba(30, 41, 59, 0.8); border-color: rgba(99, 102, 241, 0.2); }
+  @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .task-top { display: flex; align-items: flex-start; gap: 14px; }
+  .task-check {
+    width: 24px; height: 24px; min-width: 24px;
+    border-radius: 8px; border: 2px solid #475569;
+    background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; margin-top: 2px; padding: 0;
+  }
+  .task-check:hover:not(:disabled) { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+  .task-check.checked { box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+  .task-body { flex: 1; cursor: pointer; display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+  .task-id-badge {
+    font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em; white-space: nowrap;
+  }
+  .task-label { font-size: 14px; color: #cbd5e1; line-height: 1.6; margin: 0; flex: 1; min-width: 200px; }
+  .task-label.done { color: #64748b; }
+
+  .task-status-pill {
+    font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
+  }
+  .task-status-pill.pending { background: #1e293b; color: #475569; }
+
+  /* ── Task Notes ── */
+  .task-note-display {
+    display: flex; gap: 8px; align-items: flex-start;
+    margin: 10px 0 0 38px; padding: 8px 12px;
+    background: rgba(99, 102, 241, 0.06); border-radius: 8px;
+    border-left: 3px solid rgba(99, 102, 241, 0.3);
+    font-size: 13px; color: #94a3b8; line-height: 1.5;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .task-note-display:hover { background: rgba(99, 102, 241, 0.1); }
+  .note-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  .task-expanded {
+    margin-top: 12px; padding-top: 12px; margin-left: 38px;
+    border-top: 1px solid rgba(51, 65, 85, 0.3);
+  }
+  .task-meta {
+    font-size: 11px; color: #475569; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .task-meta::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: #475569; }
+
+  .add-note-btn {
+    background: rgba(51, 65, 85, 0.3); border: 1px dashed rgba(51, 65, 85, 0.6);
+    border-radius: 8px; padding: 8px 14px;
+    color: #64748b; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .add-note-btn:hover { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3); color: #a5b4fc; }
+
+  .note-editor { margin-top: 8px; }
+  .note-textarea {
+    width: 100%; padding: 10px 14px; border-radius: 10px;
+    border: 1px solid rgba(99, 102, 241, 0.3); background: rgba(15, 23, 42, 0.6);
+    color: #e2e8f0; font-size: 13px; line-height: 1.5; resize: vertical;
+    font-family: inherit; outline: none; transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+  .note-textarea:focus { border-color: rgba(99, 102, 241, 0.6); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .note-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .note-btn {
+    padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; border: none;
+  }
+  .note-btn.save { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+  .note-btn.save:hover { box-shadow: 0 4px 12px rgba(99,102,241,0.4); transform: translateY(-1px); }
+  .note-btn.cancel { background: transparent; border: 1px solid #334155; color: #94a3b8; }
+  .note-btn.cancel:hover { border-color: #475569; }
+
+  /* ── Team Notes Section ── */
+  .team-notes-section {
+    margin-top: 40px; padding-top: 32px;
+    border-top: 2px solid rgba(51, 65, 85, 0.3);
+  }
+  .team-notes-header { margin-bottom: 16px; }
+  .team-notes-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .team-notes-title { font-size: 20px; font-weight: 800; margin: 0; color: #f1f5f9; letter-spacing: -0.02em; }
+  .team-notes-sub { font-size: 13px; color: #64748b; margin: 0; }
+
+  .team-notes-display {
+    position: relative;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(51, 65, 85, 0.4);
+    border-radius: 16px; padding: 24px; min-height: 180px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .team-notes-display:hover { background: rgba(30, 41, 59, 0.7); border-color: rgba(99, 102, 241, 0.2); }
+  .team-notes-content p { margin: 0 0 6px; font-size: 14px; color: #cbd5e1; line-height: 1.7; }
+  .team-notes-content .empty-line { height: 10px; }
+  .team-notes-empty { text-align: center; padding: 24px; }
+  .team-notes-empty p { color: #475569; font-size: 14px; margin: 8px 0 0; }
+  .team-notes-edit-hint {
+    position: absolute; bottom: 12px; right: 16px;
+    font-size: 11px; color: #334155; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em; transition: color 0.15s;
+  }
+  .team-notes-display:hover .team-notes-edit-hint { color: #6366f1; }
+
+  .team-notes-editor { margin-top: 8px; }
+  .team-notes-textarea {
+    width: 100%; padding: 20px; border-radius: 16px;
+    border: 1px solid rgba(99, 102, 241, 0.3); background: rgba(15, 23, 42, 0.6);
+    color: #e2e8f0; font-size: 14px; line-height: 1.7; resize: vertical;
+    font-family: inherit; outline: none; min-height: 200px;
+    box-sizing: border-box; transition: border-color 0.2s;
+  }
+  .team-notes-textarea:focus { border-color: rgba(99, 102, 241, 0.6); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .team-notes-actions { display: flex; gap: 8px; margin-top: 12px; }
+`
