@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { postApiStream } from '../lib/api'
 
 /* ───────────────────────────────────────────
    Project Phases & Tasks — Single Source of Truth
@@ -26,9 +27,21 @@ const PROJECT_OVERVIEW = {
       icon: '🏁',
       desc: 'One-time setup to get the system running',
       steps: [
-        { id: 'wf-01', icon: '🌐', label: 'Add Website', sub: 'Connect domain, verify ownership, link Google Search Console' },
-        { id: 'wf-02', icon: '🕷️', label: 'Crawl & Audit', sub: 'Map site structure, internal links, find technical SEO issues' },
-        { id: 'wf-03', icon: '🎙️', label: 'Build Voice Profile', sub: 'Upload writing samples, extract voice chunks, define tone & style' },
+        { id: 'wf-01', icon: '🌐', label: 'Add Website', sub: 'Connect domain, verify ownership, link Google Search Console',
+          detail: 'User enters their domain URL. System verifies ownership via DNS TXT record or HTML file upload. OAuth flow connects Google Search Console for organic search data access (queries, impressions, clicks, positions — up to 16 months of history).',
+          actions: ['Domain input & validation', 'DNS/HTML ownership verification', 'GSC OAuth consent flow', 'Store site config in Supabase'],
+          apis: ['Google Search Console API (OAuth 2.0)', 'DNS lookup for verification'],
+        },
+        { id: 'wf-02', icon: '🕷️', label: 'Crawl & Audit', sub: 'Map site structure, internal links, find technical SEO issues',
+          detail: 'Automated crawler hits every page on the site. Extracts title, meta description, headings, word count, internal/external links, images, schema markup. Builds a link graph and flags technical issues (broken links, missing meta, duplicate titles, redirect chains, orphan pages).',
+          actions: ['Crawl all pages (JS-rendered + static)', 'Extract on-page SEO elements', 'Build internal link graph', 'Run technical SEO audit', 'Store page snapshots for change tracking'],
+          apis: ['Playwright/Puppeteer (JS rendering)', 'Cheerio (HTML parsing)', 'Custom crawler engine'],
+        },
+        { id: 'wf-03', icon: '🎙️', label: 'Build Voice Profile', sub: 'Upload writing samples, extract voice chunks, define tone & style',
+          detail: 'User uploads 3-10 writing samples that represent their best work. Claude analyzes these to extract voice characteristics: tone spectrum, vocabulary patterns, sentence structure, signature moves, audience adaptation style. Creates a reusable voice profile that guides all content generation.',
+          actions: ['Upload & store writing samples', 'AI analysis of voice patterns', 'Extract reusable voice chunks', 'Build voice profile summary + system prompt', 'Define tone spectrum & reading level targets'],
+          apis: ['Anthropic Claude API (voice analysis)', 'Supabase Storage (file upload)'],
+        },
       ],
     },
     {
@@ -37,9 +50,21 @@ const PROJECT_OVERVIEW = {
       icon: '🔍',
       desc: 'Understand the competitive landscape and find opportunities',
       steps: [
-        { id: 'wf-04', icon: '🔑', label: 'Discover Keywords', sub: 'Pull search volumes, difficulty, competitor gaps, trending terms' },
-        { id: 'wf-05', icon: '🧮', label: 'Score & Cluster', sub: 'Rank opportunities by ROI, group into topic clusters, map intent' },
-        { id: 'wf-06', icon: '📋', label: 'Generate Brief', sub: 'Target keyword, heading structure, word count, entities, internal links' },
+        { id: 'wf-04', icon: '🔑', label: 'Discover Keywords', sub: 'Pull search volumes, difficulty, competitor gaps, trending terms',
+          detail: 'System pulls keyword data from multiple sources: DataForSEO for volume/difficulty/CPC, GSC for existing rankings, Serper.dev for real-time SERP analysis. Auto-detects top organic competitors and extracts all keywords they rank for. Identifies content gaps (keywords competitors rank for that you don\'t).',
+          actions: ['Seed keyword expansion', 'Competitor keyword extraction', 'Content gap analysis', 'GSC data import', 'SERP feature detection (PAA, featured snippets)'],
+          apis: ['DataForSEO (volume, difficulty, CPC, related keywords)', 'Serper.dev (real-time SERP scraping)', 'Google Search Console API (existing rankings)', 'OpenAI Embeddings (semantic similarity)'],
+        },
+        { id: 'wf-05', icon: '🧮', label: 'Score & Cluster', sub: 'Rank opportunities by ROI, group into topic clusters, map intent',
+          detail: 'Keywords are scored by opportunity: (Volume × CTR estimate) / Difficulty, weighted by commercial intent and SERP feature availability. Semantically similar keywords are clustered using embeddings. Each cluster gets an intent classification (informational, commercial, transactional) and a recommended content type.',
+          actions: ['Calculate opportunity scores', 'Semantic clustering via embeddings', 'Intent classification (rule-based + LLM hybrid)', 'Map clusters to content types', 'Build hub-and-spoke topic models'],
+          apis: ['OpenAI text-embedding-3-small (clustering)', 'DataForSEO (keyword grouping endpoint)', 'Anthropic Claude API (intent classification)'],
+        },
+        { id: 'wf-06', icon: '📋', label: 'Generate Brief', sub: 'Target keyword, heading structure, word count, entities, internal links',
+          detail: 'For each prioritized keyword/cluster, generate a detailed content brief. Claude analyzes top-ranking content to determine required heading structure, entity coverage, word count targets, and unique angles. Includes internal linking recommendations based on existing site pages.',
+          actions: ['Analyze top 10 SERP results for target keyword', 'Extract required entities/subtopics', 'Generate heading structure', 'Set word count & reading level targets', 'Suggest internal link opportunities'],
+          apis: ['Serper.dev (pull top results)', 'Anthropic Claude API (brief generation)', 'DataForSEO (related questions, entities)'],
+        },
       ],
     },
     {
@@ -48,9 +73,21 @@ const PROJECT_OVERVIEW = {
       icon: '✍️',
       desc: 'Generate and refine voice-matched, SEO-optimized content',
       steps: [
-        { id: 'wf-07', icon: '✍️', label: 'Draft Content', sub: 'AI writes voice-matched, SEO-optimized article from brief + profile' },
-        { id: 'wf-08', icon: '🔬', label: 'Review & Refine', sub: 'Content Lab editing, AI review, readability tuning, SEO scoring' },
-        { id: 'wf-09', icon: '🚀', label: 'Publish', sub: 'Push to CMS with meta tags, schema markup, internal links' },
+        { id: 'wf-07', icon: '✍️', label: 'Draft Content', sub: 'AI writes voice-matched, SEO-optimized article from brief + profile',
+          detail: 'Claude generates a full article draft using the content brief + voice profile as context. Content is generated section-by-section for quality control. Primary keyword is placed in title, first 100 words, one H2, and meta description. Secondary keywords are distributed naturally throughout.',
+          actions: ['Load brief + voice profile into context', 'Section-by-section generation', 'Natural keyword placement', 'Topical completeness check', 'Generate meta title/description variants'],
+          apis: ['Anthropic Claude API (content generation)', 'Voice profile from Supabase'],
+        },
+        { id: 'wf-08', icon: '🔬', label: 'Review & Refine', sub: 'Content Lab editing, AI review, readability tuning, SEO scoring',
+          detail: 'Draft enters the Content Lab for human + AI collaborative editing. Side-by-side diff view shows changes. Real-time readability metrics (FK Grade, Reading Ease). Claude reviews against voice profile and provides structured feedback. SEO scoring engine rates the content 0-100 across 7 dimensions.',
+          actions: ['Content Lab sandbox editing', 'AI voice match review', 'Readability tuning to target grade level', 'SEO scoring (title, meta, headings, content, links, technical, media)', 'Schema markup generation (Article, FAQ, HowTo)'],
+          apis: ['Anthropic Claude API (review, adjust grade)', 'Built-in readability engine', 'Built-in SEO scoring engine'],
+        },
+        { id: 'wf-09', icon: '🚀', label: 'Publish', sub: 'Push to CMS with meta tags, schema markup, internal links',
+          detail: 'Finalized content is packaged with all SEO metadata: title tag, meta description, OG tags, JSON-LD schema markup, internal links with optimized anchor text. One-click export to WordPress or target CMS via API. Alt text recommendations generated for any images.',
+          actions: ['Package content + metadata', 'Generate JSON-LD schema markup', 'Set internal links with anchor text', 'Export to CMS via API', 'Image alt text recommendations'],
+          apis: ['WordPress REST API (or target CMS)', 'Schema.org vocabulary'],
+        },
       ],
     },
     {
@@ -59,8 +96,16 @@ const PROJECT_OVERVIEW = {
       icon: '📊',
       desc: 'Close the loop — track, detect decay, and continuously improve',
       steps: [
-        { id: 'wf-10', icon: '📊', label: 'Track Performance', sub: 'Monitor rankings, traffic, CTR, engagement per article' },
-        { id: 'wf-11', icon: '🔄', label: 'Detect & Refresh', sub: 'Flag decaying content, suggest updates, re-optimize & republish' },
+        { id: 'wf-10', icon: '📊', label: 'Track Performance', sub: 'Monitor rankings, traffic, CTR, engagement per article',
+          detail: 'Weekly automated checks: keyword position tracking via DataForSEO, traffic data from GA4, engagement metrics (bounce rate, time on page, conversions). Per-article performance dashboard showing ranking trajectory, traffic trends, and CTR over time. ROI calculation: estimated traffic value vs. production cost.',
+          actions: ['Weekly rank position checks', 'GA4 traffic & engagement import', 'Per-article performance dashboard', 'ROI calculation (traffic value vs. cost)', 'Content velocity metrics'],
+          apis: ['DataForSEO (rank tracking)', 'Google Analytics Data API (GA4)', 'Google Search Console API (impressions, CTR)'],
+        },
+        { id: 'wf-11', icon: '🔄', label: 'Detect & Refresh', sub: 'Flag decaying content, suggest updates, re-optimize & republish',
+          detail: 'Automated monitoring flags content decay: pages dropping >5 positions, traffic down >20% month-over-month. System generates specific refresh recommendations based on what changed in the SERP (new competitors, updated intent, missing entities). Feeds back into the production pipeline for re-optimization.',
+          actions: ['Monitor rank & traffic decay', 'Alert on significant drops', 'Analyze SERP changes causing decay', 'Generate refresh recommendations', 'Re-enter content into production pipeline'],
+          apis: ['DataForSEO (position monitoring)', 'Serper.dev (SERP change detection)', 'Anthropic Claude API (refresh recommendations)'],
+        },
       ],
     },
   ],
@@ -265,6 +310,10 @@ export default function DevDashboard() {
   const [expandedWfStep, setExpandedWfStep] = useState(null)
   const [wfNoteValue, setWfNoteValue] = useState('')
   const [editingWfNote, setEditingWfNote] = useState(null)
+  const [aiReviewStep, setAiReviewStep] = useState(null)
+  const [aiReviewText, setAiReviewText] = useState('')
+  const [aiReviewLoading, setAiReviewLoading] = useState(false)
+  const [acknowledgedNotes, setAcknowledgedNotes] = useState({})
 
   const DEV_PIN = '1234'
 
@@ -285,6 +334,7 @@ export default function DevDashboard() {
 
     const completed = {}
     const notes = {}
+    const acked = {}
     let latest = null
 
     ;(data || []).forEach(row => {
@@ -292,11 +342,15 @@ export default function DevDashboard() {
         setTeamNotes(row.notes || '')
         return
       }
-      if (row.completed) completed[row.task_id] = { by: row.completed_by, at: row.completed_at }
+      if (row.task_id.startsWith('wf-') && row.completed) {
+        acked[row.task_id] = { by: row.completed_by, at: row.completed_at }
+      }
+      if (row.completed && !row.task_id.startsWith('wf-')) completed[row.task_id] = { by: row.completed_by, at: row.completed_at }
       if (row.notes) notes[row.task_id] = row.notes
       if (!latest || new Date(row.updated_at) > new Date(latest)) latest = row.updated_at
     })
 
+    setAcknowledgedNotes(acked)
     setCompletedTasks(completed)
     setTaskNotes(notes)
     setLastUpdated(latest)
@@ -574,6 +628,80 @@ export default function DevDashboard() {
                                       </div>
                                       {isExpanded && (
                                         <div className="wf-step-detail">
+                                          {/* Step Summary */}
+                                          <div className="wf-detail-summary">
+                                            <p className="wf-detail-text">{step.detail}</p>
+                                          </div>
+
+                                          {/* Actions & APIs side by side */}
+                                          <div className="wf-detail-grid">
+                                            <div className="wf-detail-col">
+                                              <div className="wf-detail-col-title">Actions</div>
+                                              <ul className="wf-detail-list">
+                                                {step.actions.map((a, ai) => <li key={ai}>{a}</li>)}
+                                              </ul>
+                                            </div>
+                                            <div className="wf-detail-col">
+                                              <div className="wf-detail-col-title">APIs & Sources</div>
+                                              <ul className="wf-detail-list apis">
+                                                {step.apis.map((a, ai) => <li key={ai}>{a}</li>)}
+                                              </ul>
+                                            </div>
+                                          </div>
+
+                                          {/* Notes Section */}
+                                          <div className="wf-notes-header">
+                                            <span className="wf-notes-title">Dev Notes</span>
+                                            {note && !isEditing && (
+                                              <div className="wf-note-actions-bar">
+                                                {/* Ask Claude to review */}
+                                                <button
+                                                  className="note-btn ai-review"
+                                                  disabled={aiReviewLoading}
+                                                  onClick={async (e) => {
+                                                    e.stopPropagation()
+                                                    setAiReviewStep(step.id)
+                                                    setAiReviewText('')
+                                                    setAiReviewLoading(true)
+                                                    try {
+                                                      await postApiStream('/api/chat', {
+                                                        messages: [{ role: 'user', content: `Review these dev notes for the "${step.label}" step of our SEO content engine. Summarize the key decisions, flag any concerns or gaps, and suggest next actions.\n\nStep: ${step.label}\nDescription: ${step.detail}\n\nDev Notes:\n${note}` }],
+                                                        systemPrompt: 'You are a senior software architect reviewing development notes for an SEO content generation platform. Be concise and actionable. Use bullet points.',
+                                                      }, (chunk) => {
+                                                        setAiReviewText(prev => prev + chunk)
+                                                      })
+                                                    } catch (err) {
+                                                      setAiReviewText('Error: ' + err.message)
+                                                    }
+                                                    setAiReviewLoading(false)
+                                                  }}
+                                                >
+                                                  {aiReviewLoading && aiReviewStep === step.id ? '⏳ Reviewing...' : '🤖 Ask Claude'}
+                                                </button>
+                                                {/* Acknowledge */}
+                                                {acknowledgedNotes[step.id] ? (
+                                                  <span className="wf-ack-badge">
+                                                    ✓ Acknowledged {acknowledgedNotes[step.id].by && `by ${acknowledgedNotes[step.id].by}`} — {new Date(acknowledgedNotes[step.id].at).toLocaleDateString()}
+                                                  </span>
+                                                ) : (
+                                                  <button
+                                                    className="note-btn ack"
+                                                    onClick={async (e) => {
+                                                      e.stopPropagation()
+                                                      const now = new Date().toISOString()
+                                                      await supabase.from('project_tasks').upsert({
+                                                        task_id: step.id, completed: true, completed_by: 'dev', completed_at: now, updated_at: now,
+                                                      })
+                                                      setAcknowledgedNotes(prev => ({ ...prev, [step.id]: { by: 'dev', at: now } }))
+                                                    }}
+                                                  >
+                                                    ✓ Acknowledge
+                                                  </button>
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+
                                           {isEditing ? (
                                             <div className="wf-note-editor">
                                               <textarea
@@ -610,6 +738,22 @@ export default function DevDashboard() {
                                           ) : (
                                             <div className="wf-note-empty" onClick={() => { setEditingWfNote(step.id); setWfNoteValue('') }}>
                                               <p>No notes yet. Click to add notes.</p>
+                                            </div>
+                                          )}
+
+                                          {/* Claude AI Review Response */}
+                                          {aiReviewStep === step.id && aiReviewText && (
+                                            <div className="wf-ai-review">
+                                              <div className="wf-ai-review-header">
+                                                <span>🤖</span>
+                                                <span>Claude's Review</span>
+                                                <button className="wf-ai-dismiss" onClick={() => { setAiReviewStep(null); setAiReviewText('') }}>✕</button>
+                                              </div>
+                                              <div className="wf-ai-review-body">
+                                                {aiReviewText.split('\n').map((line, li) => (
+                                                  <p key={li}>{line || '\u00A0'}</p>
+                                                ))}
+                                              </div>
                                             </div>
                                           )}
                                         </div>
@@ -1277,7 +1421,8 @@ const devStyles = `
     position: relative; overflow: hidden;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(236, 72, 153, 0.06) 100%);
     border: 1px solid rgba(99, 102, 241, 0.25);
-    border-radius: 20px; padding: 36px 40px;
+    border-radius: 20px; padding: 28px 40px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
   }
   .overview-hero-glow {
     position: absolute; top: -80px; right: -80px;
@@ -1295,7 +1440,7 @@ const devStyles = `
     font-size: 15px; color: #94a3b8; line-height: 1.7; margin: 0 0 24px;
     max-width: 680px;
   }
-  .overview-stats-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .overview-stats-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
   .overview-stat-chip {
     display: flex; align-items: baseline; gap: 6px;
     background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(51, 65, 85, 0.4);
@@ -1446,7 +1591,7 @@ const devStyles = `
   .wf-step-chevron { color: #475569; font-size: 11px; flex-shrink: 0; transition: color 0.15s; }
   .wf-step:hover .wf-step-chevron { color: #94a3b8; }
 
-  .wf-step-detail { padding: 0 12px 12px; border-top: 1px solid rgba(51, 65, 85, 0.3); }
+  .wf-step-detail { padding: 12px 12px 12px; border-top: 1px solid rgba(51, 65, 85, 0.3); }
   .wf-note-display {
     position: relative;
     background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(51, 65, 85, 0.3);
@@ -1463,6 +1608,77 @@ const devStyles = `
   .wf-note-empty:hover { border-color: rgba(99, 102, 241, 0.3); background: rgba(99, 102, 241, 0.04); }
   .wf-note-empty p { color: #475569; font-size: 11px; margin: 0; }
   .wf-note-editor { margin-top: 8px; }
+
+  /* Step Detail Sections */
+  .wf-detail-summary { margin-bottom: 12px; }
+  .wf-detail-text { font-size: 12px; color: #94a3b8; line-height: 1.7; margin: 0; }
+
+  .wf-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .wf-detail-col {
+    background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(51, 65, 85, 0.3);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .wf-detail-col-title {
+    font-size: 10px; font-weight: 800; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;
+  }
+  .wf-detail-list { margin: 0; padding: 0 0 0 16px; }
+  .wf-detail-list li { font-size: 11px; color: #cbd5e1; line-height: 1.6; margin-bottom: 3px; }
+  .wf-detail-list.apis li { color: #a5b4fc; }
+
+  /* Notes Header with Actions */
+  .wf-notes-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .wf-notes-title {
+    font-size: 10px; font-weight: 800; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .wf-note-actions-bar { display: flex; align-items: center; gap: 8px; }
+
+  .note-btn.ai-review {
+    background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2));
+    border: 1px solid rgba(99,102,241,0.3); color: #a5b4fc;
+    font-size: 11px; padding: 4px 10px; border-radius: 6px;
+    cursor: pointer; transition: all 0.15s; font-weight: 600;
+  }
+  .note-btn.ai-review:hover { background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(139,92,246,0.3)); }
+  .note-btn.ai-review:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .note-btn.ack {
+    background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ade80; font-size: 11px; padding: 4px 10px; border-radius: 6px;
+    cursor: pointer; transition: all 0.15s; font-weight: 600;
+  }
+  .note-btn.ack:hover { background: rgba(34, 197, 94, 0.25); }
+
+  .wf-ack-badge {
+    font-size: 10px; color: #4ade80; font-weight: 600;
+    background: rgba(34, 197, 94, 0.1); padding: 3px 8px; border-radius: 6px;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+
+  /* AI Review Response */
+  .wf-ai-review {
+    margin-top: 12px; border-radius: 10px;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    background: rgba(99, 102, 241, 0.06);
+    overflow: hidden;
+  }
+  .wf-ai-review-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; font-size: 11px; font-weight: 700; color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.08);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+  }
+  .wf-ai-dismiss {
+    margin-left: auto; background: none; border: none; color: #64748b;
+    cursor: pointer; font-size: 14px; padding: 0; line-height: 1;
+  }
+  .wf-ai-dismiss:hover { color: #94a3b8; }
+  .wf-ai-review-body { padding: 12px; }
+  .wf-ai-review-body p { margin: 0 0 6px; font-size: 12px; color: #cbd5e1; line-height: 1.6; }
 
   .pipeline-loop-note {
     margin-top: 16px; padding: 12px 16px;
