@@ -527,81 +527,104 @@ export default function DevDashboard() {
               <div className="overview-card" style={{ marginTop: '0' }}>
                 <h3 className="overview-card-title"><span>⚡</span> System Workflow — How It All Works</h3>
                 <p className="pipeline-subtitle">The full user journey from onboarding to continuous content optimization. Click any step to add notes.</p>
-                <div className="wf-groups">
-                  {PROJECT_OVERVIEW.pipeline.map((group, gi) => (
-                    <div key={gi} className="wf-group" style={{ '--wf-color': group.color }}>
-                      <div className="wf-group-header">
-                        <span className="wf-group-icon">{group.icon}</span>
-                        <div>
-                          <h4 className="wf-group-title">{group.group}</h4>
-                          <p className="wf-group-desc">{group.desc}</p>
-                        </div>
-                      </div>
-                      <div className="wf-steps">
-                        {group.steps.map((step) => {
-                          const isExpanded = expandedWfStep === step.id
-                          const note = taskNotes[step.id]
-                          const isEditing = editingWfNote === step.id
-                          return (
-                            <div key={step.id} className={`wf-step ${isExpanded ? 'expanded' : ''}`} style={{ '--wf-color': group.color }}>
-                              <div className="wf-step-row" onClick={() => setExpandedWfStep(isExpanded ? null : step.id)}>
-                                <div className="wf-step-icon">{step.icon}</div>
-                                <div className="wf-step-body">
-                                  <div className="wf-step-label">{step.label}</div>
-                                  <div className="wf-step-sub">{step.sub}</div>
-                                </div>
-                                {note && <span className="has-note-badge" title="Has notes">📝</span>}
-                                <span className="wf-step-chevron">{isExpanded ? '▾' : '▸'}</span>
-                              </div>
-                              {isExpanded && (
-                                <div className="wf-step-detail">
-                                  {isEditing ? (
-                                    <div className="wf-note-editor">
-                                      <textarea
-                                        className="detail-note-textarea"
-                                        value={wfNoteValue}
-                                        onChange={e => setWfNoteValue(e.target.value)}
-                                        placeholder={"Add notes for this step...\n\nIdeas:\n- Architecture decisions\n- API choices\n- Open questions\n- Dependencies"}
-                                        autoFocus
-                                        rows={6}
-                                      />
-                                      <div className="note-actions">
-                                        <button className="note-btn save" onClick={async () => {
-                                          setSaving(true)
-                                          await supabase.from('project_tasks').upsert({
-                                            task_id: step.id, notes: wfNoteValue || null, updated_at: new Date().toISOString(),
-                                          })
-                                          setTaskNotes(prev => wfNoteValue ? { ...prev, [step.id]: wfNoteValue } : (() => { const n = { ...prev }; delete n[step.id]; return n })())
-                                          setEditingWfNote(null)
-                                          setWfNoteValue('')
-                                          setSaving(false)
-                                        }} disabled={saving}>
-                                          {saving ? 'Saving...' : 'Save Note'}
-                                        </button>
-                                        <button className="note-btn cancel" onClick={() => { setEditingWfNote(null); setWfNoteValue('') }}>Cancel</button>
-                                      </div>
-                                    </div>
-                                  ) : note ? (
-                                    <div className="wf-note-display" onClick={() => { setEditingWfNote(step.id); setWfNoteValue(note) }}>
-                                      {note.split('\n').map((line, i) => (
-                                        <p key={i}>{line || '\u00A0'}</p>
-                                      ))}
-                                      <div className="detail-note-edit-hint">Click to edit</div>
-                                    </div>
-                                  ) : (
-                                    <div className="wf-note-empty" onClick={() => { setEditingWfNote(step.id); setWfNoteValue('') }}>
-                                      <p>No notes yet. Click to add notes for this workflow step.</p>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                {(() => {
+                  let stepNum = 0
+                  return (
+                    <div className="wf-flow">
+                      {PROJECT_OVERVIEW.pipeline.map((group, gi) => (
+                        <div key={gi}>
+                          {/* Arrow between groups */}
+                          {gi > 0 && (
+                            <div className="wf-flow-arrow">
+                              <svg width="24" height="32" viewBox="0 0 24 32" fill="none">
+                                <path d="M12 0V24M12 24L5 17M12 24L19 17" stroke={PROJECT_OVERVIEW.pipeline[gi - 1].color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5"/>
+                              </svg>
                             </div>
-                          )
-                        })}
-                      </div>
+                          )}
+                          <div className="wf-group" style={{ '--wf-color': group.color }}>
+                            <div className="wf-group-header">
+                              <span className="wf-group-icon">{group.icon}</span>
+                              <div className="wf-group-header-text">
+                                <h4 className="wf-group-title">{group.group}</h4>
+                                <p className="wf-group-desc">{group.desc}</p>
+                              </div>
+                            </div>
+                            <div className="wf-steps-row">
+                              {group.steps.map((step, si) => {
+                                stepNum++
+                                const isExpanded = expandedWfStep === step.id
+                                const note = taskNotes[step.id]
+                                const isEditing = editingWfNote === step.id
+                                return (
+                                  <div key={step.id} className="wf-step-col">
+                                    {/* Inline arrow between steps */}
+                                    {si > 0 && (
+                                      <div className="wf-inline-arrow" style={{ color: group.color }}>→</div>
+                                    )}
+                                    <div className={`wf-step ${isExpanded ? 'expanded' : ''}`} style={{ '--wf-color': group.color }}>
+                                      <div className="wf-step-row" onClick={() => setExpandedWfStep(isExpanded ? null : step.id)}>
+                                        <div className="wf-step-num" style={{ background: group.color }}>{stepNum}</div>
+                                        <div className="wf-step-icon">{step.icon}</div>
+                                        <div className="wf-step-body">
+                                          <div className="wf-step-label">{step.label}</div>
+                                          <div className="wf-step-sub">{step.sub}</div>
+                                        </div>
+                                        {note && <span className="has-note-badge" title="Has notes">📝</span>}
+                                        <span className="wf-step-chevron">{isExpanded ? '▾' : '▸'}</span>
+                                      </div>
+                                      {isExpanded && (
+                                        <div className="wf-step-detail">
+                                          {isEditing ? (
+                                            <div className="wf-note-editor">
+                                              <textarea
+                                                className="detail-note-textarea"
+                                                value={wfNoteValue}
+                                                onChange={e => setWfNoteValue(e.target.value)}
+                                                placeholder={"Add notes for this step...\n\nIdeas:\n- Architecture decisions\n- API choices\n- Open questions\n- Dependencies"}
+                                                autoFocus
+                                                rows={6}
+                                              />
+                                              <div className="note-actions">
+                                                <button className="note-btn save" onClick={async () => {
+                                                  setSaving(true)
+                                                  await supabase.from('project_tasks').upsert({
+                                                    task_id: step.id, notes: wfNoteValue || null, updated_at: new Date().toISOString(),
+                                                  })
+                                                  setTaskNotes(prev => wfNoteValue ? { ...prev, [step.id]: wfNoteValue } : (() => { const n = { ...prev }; delete n[step.id]; return n })())
+                                                  setEditingWfNote(null)
+                                                  setWfNoteValue('')
+                                                  setSaving(false)
+                                                }} disabled={saving}>
+                                                  {saving ? 'Saving...' : 'Save Note'}
+                                                </button>
+                                                <button className="note-btn cancel" onClick={() => { setEditingWfNote(null); setWfNoteValue('') }}>Cancel</button>
+                                              </div>
+                                            </div>
+                                          ) : note ? (
+                                            <div className="wf-note-display" onClick={() => { setEditingWfNote(step.id); setWfNoteValue(note) }}>
+                                              {note.split('\n').map((line, li) => (
+                                                <p key={li}>{line || '\u00A0'}</p>
+                                              ))}
+                                              <div className="detail-note-edit-hint">Click to edit</div>
+                                            </div>
+                                          ) : (
+                                            <div className="wf-note-empty" onClick={() => { setEditingWfNote(step.id); setWfNoteValue('') }}>
+                                              <p>No notes yet. Click to add notes.</p>
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  )
+                })()}
                 <div className="pipeline-loop-note">
                   <span>🔁</span> Research → Production → Performance loops continuously — the system finds new opportunities, generates content, and optimizes existing pages in an ongoing cycle.
                 </div>
@@ -1356,16 +1379,22 @@ const devStyles = `
   .pipeline-subtitle {
     font-size: 13px; color: #64748b; margin: -12px 0 20px; line-height: 1.5;
   }
-  .wf-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 1100px) { .wf-groups { grid-template-columns: 1fr; } }
+  /* ── Workflow Flow (vertical groups, horizontal steps) ── */
+  .wf-flow { display: flex; flex-direction: column; align-items: center; }
+  .wf-flow > div { width: 100%; }
+
+  .wf-flow-arrow {
+    display: flex; justify-content: center; padding: 4px 0;
+  }
 
   .wf-group {
     background: rgba(15, 23, 42, 0.4);
     border: 1px solid rgba(51, 65, 85, 0.4);
     border-radius: 14px; padding: 18px;
-    border-top: 3px solid var(--wf-color);
+    border-left: 4px solid var(--wf-color);
   }
   .wf-group-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .wf-group-header-text { flex: 1; }
   .wf-group-icon {
     font-size: 22px; width: 40px; height: 40px;
     display: flex; align-items: center; justify-content: center;
@@ -1375,8 +1404,15 @@ const devStyles = `
   .wf-group-title { font-size: 14px; font-weight: 800; color: #f1f5f9; margin: 0; letter-spacing: -0.01em; }
   .wf-group-desc { font-size: 11px; color: #64748b; margin: 2px 0 0; }
 
-  .wf-steps { display: flex; flex-direction: column; gap: 6px; }
+  .wf-steps-row { display: flex; align-items: flex-start; gap: 0; }
+  .wf-step-col { display: flex; align-items: flex-start; flex: 1; min-width: 0; }
+  .wf-inline-arrow {
+    display: flex; align-items: center; padding: 18px 6px 0;
+    font-size: 20px; opacity: 0.4; flex-shrink: 0;
+  }
+
   .wf-step {
+    flex: 1; min-width: 0;
     background: rgba(30, 41, 59, 0.5);
     border: 1px solid rgba(51, 65, 85, 0.3);
     border-radius: 10px; transition: all 0.2s;
@@ -1389,38 +1425,44 @@ const devStyles = `
   }
 
   .wf-step-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 14px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; cursor: pointer;
+  }
+  .wf-step-num {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
   .wf-step-icon {
-    font-size: 20px; width: 36px; height: 36px; flex-shrink: 0;
+    font-size: 18px; width: 32px; height: 32px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
     background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08));
-    border-radius: 10px; border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 8px; border: 1px solid rgba(99,102,241,0.15);
   }
   .wf-step-body { flex: 1; min-width: 0; }
-  .wf-step-label { font-size: 13px; font-weight: 700; color: #e2e8f0; }
-  .wf-step-sub { font-size: 11px; color: #64748b; line-height: 1.4; margin-top: 2px; }
-  .wf-step-chevron { color: #475569; font-size: 12px; flex-shrink: 0; transition: color 0.15s; }
+  .wf-step-label { font-size: 12px; font-weight: 700; color: #e2e8f0; }
+  .wf-step-sub { font-size: 10px; color: #64748b; line-height: 1.4; margin-top: 1px; }
+  .wf-step-chevron { color: #475569; font-size: 11px; flex-shrink: 0; transition: color 0.15s; }
   .wf-step:hover .wf-step-chevron { color: #94a3b8; }
 
-  .wf-step-detail { padding: 0 14px 14px; border-top: 1px solid rgba(51, 65, 85, 0.3); }
+  .wf-step-detail { padding: 0 12px 12px; border-top: 1px solid rgba(51, 65, 85, 0.3); }
   .wf-note-display {
     position: relative;
     background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(51, 65, 85, 0.3);
-    border-radius: 8px; padding: 14px; margin-top: 10px;
-    cursor: pointer; transition: all 0.2s; min-height: 60px;
+    border-radius: 8px; padding: 12px; margin-top: 8px;
+    cursor: pointer; transition: all 0.2s; min-height: 50px;
   }
   .wf-note-display:hover { border-color: rgba(99, 102, 241, 0.3); }
-  .wf-note-display p { margin: 0 0 4px; font-size: 13px; color: #cbd5e1; line-height: 1.6; }
+  .wf-note-display p { margin: 0 0 4px; font-size: 12px; color: #cbd5e1; line-height: 1.6; }
   .wf-note-empty {
-    text-align: center; padding: 16px 12px; margin-top: 10px;
+    text-align: center; padding: 12px 10px; margin-top: 8px;
     background: rgba(15, 23, 42, 0.3); border: 1px dashed rgba(51, 65, 85, 0.4);
     border-radius: 8px; cursor: pointer; transition: all 0.2s;
   }
   .wf-note-empty:hover { border-color: rgba(99, 102, 241, 0.3); background: rgba(99, 102, 241, 0.04); }
-  .wf-note-empty p { color: #475569; font-size: 12px; margin: 0; }
-  .wf-note-editor { margin-top: 10px; }
+  .wf-note-empty p { color: #475569; font-size: 11px; margin: 0; }
+  .wf-note-editor { margin-top: 8px; }
 
   .pipeline-loop-note {
     margin-top: 16px; padding: 12px 16px;
