@@ -182,7 +182,7 @@ export default function DevDashboard() {
   const [activePhase, setActivePhase] = useState('phase-1')
   const [lastUpdated, setLastUpdated] = useState(null)
 
-  const DEV_PIN = '0824'
+  const DEV_PIN = '1234'
 
   // Check session
   useEffect(() => {
