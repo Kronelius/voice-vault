@@ -20,17 +20,49 @@ const PROJECT_OVERVIEW = {
     { label: 'Repo', value: 'github.com/Kronelius/voice-vault' },
   ],
   pipeline: [
-    { icon: '🌐', label: 'Add Website', sub: 'Connect domain, verify ownership, link Google Search Console' },
-    { icon: '🕷️', label: 'Crawl & Audit', sub: 'Map site structure, internal links, find technical SEO issues' },
-    { icon: '🎙️', label: 'Build Voice Profile', sub: 'Upload writing samples, extract voice chunks, define tone & style' },
-    { icon: '🔍', label: 'Discover Keywords', sub: 'Pull search volumes, difficulty, competitor gaps, trending terms' },
-    { icon: '🧮', label: 'Score & Cluster', sub: 'Rank opportunities by ROI, group into topic clusters, map intent' },
-    { icon: '📋', label: 'Generate Brief', sub: 'Target keyword, heading structure, word count, entities, internal links' },
-    { icon: '✍️', label: 'Draft Content', sub: 'AI writes voice-matched, SEO-optimized article from brief + profile' },
-    { icon: '🔬', label: 'Review & Refine', sub: 'Content Lab editing, AI review, readability tuning, SEO scoring' },
-    { icon: '🚀', label: 'Publish', sub: 'Push to CMS with meta tags, schema markup, internal links' },
-    { icon: '📊', label: 'Track Performance', sub: 'Monitor rankings, traffic, CTR, engagement per article' },
-    { icon: '🔄', label: 'Detect & Refresh', sub: 'Flag decaying content, suggest updates, re-optimize & republish' },
+    {
+      group: 'Onboarding & Setup',
+      color: '#22c55e',
+      icon: '🏁',
+      desc: 'One-time setup to get the system running',
+      steps: [
+        { id: 'wf-01', icon: '🌐', label: 'Add Website', sub: 'Connect domain, verify ownership, link Google Search Console' },
+        { id: 'wf-02', icon: '🕷️', label: 'Crawl & Audit', sub: 'Map site structure, internal links, find technical SEO issues' },
+        { id: 'wf-03', icon: '🎙️', label: 'Build Voice Profile', sub: 'Upload writing samples, extract voice chunks, define tone & style' },
+      ],
+    },
+    {
+      group: 'Research & Strategy',
+      color: '#3b82f6',
+      icon: '🔍',
+      desc: 'Understand the competitive landscape and find opportunities',
+      steps: [
+        { id: 'wf-04', icon: '🔑', label: 'Discover Keywords', sub: 'Pull search volumes, difficulty, competitor gaps, trending terms' },
+        { id: 'wf-05', icon: '🧮', label: 'Score & Cluster', sub: 'Rank opportunities by ROI, group into topic clusters, map intent' },
+        { id: 'wf-06', icon: '📋', label: 'Generate Brief', sub: 'Target keyword, heading structure, word count, entities, internal links' },
+      ],
+    },
+    {
+      group: 'Content Production',
+      color: '#8b5cf6',
+      icon: '✍️',
+      desc: 'Generate and refine voice-matched, SEO-optimized content',
+      steps: [
+        { id: 'wf-07', icon: '✍️', label: 'Draft Content', sub: 'AI writes voice-matched, SEO-optimized article from brief + profile' },
+        { id: 'wf-08', icon: '🔬', label: 'Review & Refine', sub: 'Content Lab editing, AI review, readability tuning, SEO scoring' },
+        { id: 'wf-09', icon: '🚀', label: 'Publish', sub: 'Push to CMS with meta tags, schema markup, internal links' },
+      ],
+    },
+    {
+      group: 'Performance & Optimization',
+      color: '#f59e0b',
+      icon: '📊',
+      desc: 'Close the loop — track, detect decay, and continuously improve',
+      steps: [
+        { id: 'wf-10', icon: '📊', label: 'Track Performance', sub: 'Monitor rankings, traffic, CTR, engagement per article' },
+        { id: 'wf-11', icon: '🔄', label: 'Detect & Refresh', sub: 'Flag decaying content, suggest updates, re-optimize & republish' },
+      ],
+    },
   ],
   architecture: [
     { label: 'Voice Vault', desc: 'Voice profiling, writing samples, content editing with AI review — the foundation that makes generated content sound like you.' },
@@ -230,6 +262,9 @@ export default function DevDashboard() {
   const [editingTeamNotes, setEditingTeamNotes] = useState(false)
   const [teamNoteDraft, setTeamNoteDraft] = useState('')
   const [expandedTask, setExpandedTask] = useState(null)
+  const [expandedWfStep, setExpandedWfStep] = useState(null)
+  const [wfNoteValue, setWfNoteValue] = useState('')
+  const [editingWfNote, setEditingWfNote] = useState(null)
 
   const DEV_PIN = '1234'
 
@@ -488,27 +523,87 @@ export default function DevDashboard() {
                 </div>
               </div>
 
-              {/* Pipeline Workflow */}
+              {/* Pipeline Workflow — Grouped */}
               <div className="overview-card" style={{ marginTop: '0' }}>
                 <h3 className="overview-card-title"><span>⚡</span> System Workflow — How It All Works</h3>
-                <p className="pipeline-subtitle">The full user journey from onboarding to continuous content optimization</p>
-                <div className="pipeline-flow">
-                  {PROJECT_OVERVIEW.pipeline.map((step, i) => (
-                    <div key={i} className="pipeline-step">
-                      <div className="pipeline-node">
-                        <div className="pipeline-step-num">{i + 1}</div>
-                        <div className="pipeline-icon">{step.icon}</div>
-                        <div className="pipeline-label">{step.label}</div>
-                        <div className="pipeline-sub">{step.sub}</div>
+                <p className="pipeline-subtitle">The full user journey from onboarding to continuous content optimization. Click any step to add notes.</p>
+                <div className="wf-groups">
+                  {PROJECT_OVERVIEW.pipeline.map((group, gi) => (
+                    <div key={gi} className="wf-group" style={{ '--wf-color': group.color }}>
+                      <div className="wf-group-header">
+                        <span className="wf-group-icon">{group.icon}</span>
+                        <div>
+                          <h4 className="wf-group-title">{group.group}</h4>
+                          <p className="wf-group-desc">{group.desc}</p>
+                        </div>
                       </div>
-                      {i < PROJECT_OVERVIEW.pipeline.length - 1 && (
-                        <div className="pipeline-arrow">→</div>
-                      )}
+                      <div className="wf-steps">
+                        {group.steps.map((step) => {
+                          const isExpanded = expandedWfStep === step.id
+                          const note = taskNotes[step.id]
+                          const isEditing = editingWfNote === step.id
+                          return (
+                            <div key={step.id} className={`wf-step ${isExpanded ? 'expanded' : ''}`} style={{ '--wf-color': group.color }}>
+                              <div className="wf-step-row" onClick={() => setExpandedWfStep(isExpanded ? null : step.id)}>
+                                <div className="wf-step-icon">{step.icon}</div>
+                                <div className="wf-step-body">
+                                  <div className="wf-step-label">{step.label}</div>
+                                  <div className="wf-step-sub">{step.sub}</div>
+                                </div>
+                                {note && <span className="has-note-badge" title="Has notes">📝</span>}
+                                <span className="wf-step-chevron">{isExpanded ? '▾' : '▸'}</span>
+                              </div>
+                              {isExpanded && (
+                                <div className="wf-step-detail">
+                                  {isEditing ? (
+                                    <div className="wf-note-editor">
+                                      <textarea
+                                        className="detail-note-textarea"
+                                        value={wfNoteValue}
+                                        onChange={e => setWfNoteValue(e.target.value)}
+                                        placeholder={"Add notes for this step...\n\nIdeas:\n- Architecture decisions\n- API choices\n- Open questions\n- Dependencies"}
+                                        autoFocus
+                                        rows={6}
+                                      />
+                                      <div className="note-actions">
+                                        <button className="note-btn save" onClick={async () => {
+                                          setSaving(true)
+                                          await supabase.from('project_tasks').upsert({
+                                            task_id: step.id, notes: wfNoteValue || null, updated_at: new Date().toISOString(),
+                                          })
+                                          setTaskNotes(prev => wfNoteValue ? { ...prev, [step.id]: wfNoteValue } : (() => { const n = { ...prev }; delete n[step.id]; return n })())
+                                          setEditingWfNote(null)
+                                          setWfNoteValue('')
+                                          setSaving(false)
+                                        }} disabled={saving}>
+                                          {saving ? 'Saving...' : 'Save Note'}
+                                        </button>
+                                        <button className="note-btn cancel" onClick={() => { setEditingWfNote(null); setWfNoteValue('') }}>Cancel</button>
+                                      </div>
+                                    </div>
+                                  ) : note ? (
+                                    <div className="wf-note-display" onClick={() => { setEditingWfNote(step.id); setWfNoteValue(note) }}>
+                                      {note.split('\n').map((line, i) => (
+                                        <p key={i}>{line || '\u00A0'}</p>
+                                      ))}
+                                      <div className="detail-note-edit-hint">Click to edit</div>
+                                    </div>
+                                  ) : (
+                                    <div className="wf-note-empty" onClick={() => { setEditingWfNote(step.id); setWfNoteValue('') }}>
+                                      <p>No notes yet. Click to add notes for this workflow step.</p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
                   ))}
                 </div>
                 <div className="pipeline-loop-note">
-                  <span>🔁</span> Steps 4–11 repeat continuously — the system finds new opportunities, generates content, and optimizes existing pages in an ongoing loop.
+                  <span>🔁</span> Research → Production → Performance loops continuously — the system finds new opportunities, generates content, and optimizes existing pages in an ongoing cycle.
                 </div>
               </div>
 
@@ -1257,58 +1352,76 @@ const devStyles = `
   .roadmap-bar-outer { height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; }
   .roadmap-bar-inner { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 
-  /* ── Pipeline Workflow ── */
+  /* ── Pipeline Workflow (Grouped) ── */
   .pipeline-subtitle {
     font-size: 13px; color: #64748b; margin: -12px 0 20px; line-height: 1.5;
   }
-  .pipeline-flow {
-    display: flex; align-items: stretch; flex-wrap: wrap;
-    gap: 8px; padding: 0;
-    justify-content: center;
-  }
-  .pipeline-step {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .pipeline-node {
-    position: relative;
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center;
-    text-align: center; width: 110px; height: 140px; padding: 14px 8px 12px;
-    border-radius: 14px; background: rgba(15, 23, 42, 0.6);
+  .wf-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 1100px) { .wf-groups { grid-template-columns: 1fr; } }
+
+  .wf-group {
+    background: rgba(15, 23, 42, 0.4);
     border: 1px solid rgba(51, 65, 85, 0.4);
-    transition: all 0.2s;
+    border-radius: 14px; padding: 18px;
+    border-top: 3px solid var(--wf-color);
   }
-  .pipeline-node:hover {
-    background: rgba(99, 102, 241, 0.08);
-    border-color: rgba(99, 102, 241, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  }
-  .pipeline-step-num {
-    position: absolute; top: -8px; left: -8px;
-    width: 22px; height: 22px; border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: white; font-size: 10px; font-weight: 800;
+  .wf-group-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .wf-group-icon {
+    font-size: 22px; width: 40px; height: 40px;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 6px rgba(99,102,241,0.4);
+    background: rgba(15, 23, 42, 0.6); border-radius: 10px;
+    border: 1px solid rgba(51, 65, 85, 0.4);
   }
-  .pipeline-icon {
-    font-size: 24px; margin-bottom: 6px;
-    width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
-    border-radius: 12px; border: 1px solid rgba(99,102,241,0.2);
+  .wf-group-title { font-size: 14px; font-weight: 800; color: #f1f5f9; margin: 0; letter-spacing: -0.01em; }
+  .wf-group-desc { font-size: 11px; color: #64748b; margin: 2px 0 0; }
+
+  .wf-steps { display: flex; flex-direction: column; gap: 6px; }
+  .wf-step {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(51, 65, 85, 0.3);
+    border-radius: 10px; transition: all 0.2s;
+    overflow: hidden;
   }
-  .pipeline-label {
-    font-size: 11px; font-weight: 800; color: #e2e8f0;
-    margin-bottom: 3px; letter-spacing: -0.01em;
+  .wf-step:hover { background: rgba(30, 41, 59, 0.7); border-color: rgba(51, 65, 85, 0.5); }
+  .wf-step.expanded {
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.1);
   }
-  .pipeline-sub {
-    font-size: 9px; color: #64748b; line-height: 1.4;
+
+  .wf-step-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; cursor: pointer;
   }
-  .pipeline-arrow {
-    color: #6366f1; font-size: 18px; opacity: 0.5;
-    flex-shrink: 0;
+  .wf-step-icon {
+    font-size: 20px; width: 36px; height: 36px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08));
+    border-radius: 10px; border: 1px solid rgba(99,102,241,0.15);
   }
+  .wf-step-body { flex: 1; min-width: 0; }
+  .wf-step-label { font-size: 13px; font-weight: 700; color: #e2e8f0; }
+  .wf-step-sub { font-size: 11px; color: #64748b; line-height: 1.4; margin-top: 2px; }
+  .wf-step-chevron { color: #475569; font-size: 12px; flex-shrink: 0; transition: color 0.15s; }
+  .wf-step:hover .wf-step-chevron { color: #94a3b8; }
+
+  .wf-step-detail { padding: 0 14px 14px; border-top: 1px solid rgba(51, 65, 85, 0.3); }
+  .wf-note-display {
+    position: relative;
+    background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(51, 65, 85, 0.3);
+    border-radius: 8px; padding: 14px; margin-top: 10px;
+    cursor: pointer; transition: all 0.2s; min-height: 60px;
+  }
+  .wf-note-display:hover { border-color: rgba(99, 102, 241, 0.3); }
+  .wf-note-display p { margin: 0 0 4px; font-size: 13px; color: #cbd5e1; line-height: 1.6; }
+  .wf-note-empty {
+    text-align: center; padding: 16px 12px; margin-top: 10px;
+    background: rgba(15, 23, 42, 0.3); border: 1px dashed rgba(51, 65, 85, 0.4);
+    border-radius: 8px; cursor: pointer; transition: all 0.2s;
+  }
+  .wf-note-empty:hover { border-color: rgba(99, 102, 241, 0.3); background: rgba(99, 102, 241, 0.04); }
+  .wf-note-empty p { color: #475569; font-size: 12px; margin: 0; }
+  .wf-note-editor { margin-top: 10px; }
+
   .pipeline-loop-note {
     margin-top: 16px; padding: 12px 16px;
     background: rgba(99, 102, 241, 0.06);
