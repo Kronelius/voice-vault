@@ -20,12 +20,17 @@ const PROJECT_OVERVIEW = {
     { label: 'Repo', value: 'github.com/Kronelius/voice-vault' },
   ],
   pipeline: [
-    { icon: '🎙️', label: 'Capture Voice', sub: 'Voice chunks, writing samples, tone analysis' },
-    { icon: '🕷️', label: 'Crawl & Audit', sub: 'Site structure, internal links, tech SEO' },
-    { icon: '🔑', label: 'Keyword Research', sub: 'Volume, difficulty, gaps, competitors' },
-    { icon: '🗺️', label: 'Strategy & Briefs', sub: 'Topic clusters, intent mapping, content briefs' },
-    { icon: '✍️', label: 'Generate Content', sub: 'Voice-matched, SEO-optimized drafts' },
-    { icon: '📊', label: 'Track & Optimize', sub: 'Rank tracking, decay detection, refresh' },
+    { icon: '🌐', label: 'Add Website', sub: 'Connect domain, verify ownership, link Google Search Console' },
+    { icon: '🕷️', label: 'Crawl & Audit', sub: 'Map site structure, internal links, find technical SEO issues' },
+    { icon: '🎙️', label: 'Build Voice Profile', sub: 'Upload writing samples, extract voice chunks, define tone & style' },
+    { icon: '🔍', label: 'Discover Keywords', sub: 'Pull search volumes, difficulty, competitor gaps, trending terms' },
+    { icon: '🧮', label: 'Score & Cluster', sub: 'Rank opportunities by ROI, group into topic clusters, map intent' },
+    { icon: '📋', label: 'Generate Brief', sub: 'Target keyword, heading structure, word count, entities, internal links' },
+    { icon: '✍️', label: 'Draft Content', sub: 'AI writes voice-matched, SEO-optimized article from brief + profile' },
+    { icon: '🔬', label: 'Review & Refine', sub: 'Content Lab editing, AI review, readability tuning, SEO scoring' },
+    { icon: '🚀', label: 'Publish', sub: 'Push to CMS with meta tags, schema markup, internal links' },
+    { icon: '📊', label: 'Track Performance', sub: 'Monitor rankings, traffic, CTR, engagement per article' },
+    { icon: '🔄', label: 'Detect & Refresh', sub: 'Flag decaying content, suggest updates, re-optimize & republish' },
   ],
   architecture: [
     { label: 'Voice Vault', desc: 'Voice profiling, writing samples, content editing with AI review — the foundation that makes generated content sound like you.' },
@@ -485,24 +490,25 @@ export default function DevDashboard() {
 
               {/* Pipeline Workflow */}
               <div className="overview-card" style={{ marginTop: '0' }}>
-                <h3 className="overview-card-title"><span>⚡</span> Content Pipeline Workflow</h3>
+                <h3 className="overview-card-title"><span>⚡</span> System Workflow — How It All Works</h3>
+                <p className="pipeline-subtitle">The full user journey from onboarding to continuous content optimization</p>
                 <div className="pipeline-flow">
                   {PROJECT_OVERVIEW.pipeline.map((step, i) => (
                     <div key={i} className="pipeline-step">
                       <div className="pipeline-node">
+                        <div className="pipeline-step-num">{i + 1}</div>
                         <div className="pipeline-icon">{step.icon}</div>
                         <div className="pipeline-label">{step.label}</div>
                         <div className="pipeline-sub">{step.sub}</div>
                       </div>
                       {i < PROJECT_OVERVIEW.pipeline.length - 1 && (
-                        <div className="pipeline-arrow">
-                          <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
-                            <path d="M0 10H28M28 10L20 3M28 10L20 17" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.5"/>
-                          </svg>
-                        </div>
+                        <div className="pipeline-arrow">→</div>
                       )}
                     </div>
                   ))}
+                </div>
+                <div className="pipeline-loop-note">
+                  <span>🔁</span> Steps 4–11 repeat continuously — the system finds new opportunities, generates content, and optimizes existing pages in an ongoing loop.
                 </div>
               </div>
 
@@ -1252,18 +1258,22 @@ const devStyles = `
   .roadmap-bar-inner { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 
   /* ── Pipeline Workflow ── */
+  .pipeline-subtitle {
+    font-size: 13px; color: #64748b; margin: -12px 0 20px; line-height: 1.5;
+  }
   .pipeline-flow {
-    display: flex; align-items: flex-start; justify-content: center;
-    gap: 0; padding: 8px 0; overflow-x: auto;
-    scrollbar-width: thin; scrollbar-color: #334155 transparent;
+    display: flex; align-items: stretch; flex-wrap: wrap;
+    gap: 8px; padding: 0;
+    justify-content: center;
   }
   .pipeline-step {
-    display: flex; align-items: center; flex-shrink: 0;
+    display: flex; align-items: center; gap: 8px;
   }
   .pipeline-node {
+    position: relative;
     display: flex; flex-direction: column; align-items: center;
-    text-align: center; width: 130px; padding: 16px 8px;
-    border-radius: 14px; background: rgba(15, 23, 42, 0.5);
+    text-align: center; width: 110px; padding: 14px 8px 12px;
+    border-radius: 14px; background: rgba(15, 23, 42, 0.6);
     border: 1px solid rgba(51, 65, 85, 0.4);
     transition: all 0.2s;
   }
@@ -1273,21 +1283,38 @@ const devStyles = `
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   }
+  .pipeline-step-num {
+    position: absolute; top: -8px; left: -8px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white; font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(99,102,241,0.4);
+  }
   .pipeline-icon {
-    font-size: 28px; margin-bottom: 8px;
-    width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 6px;
+    width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
     background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
-    border-radius: 14px; border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 12px; border: 1px solid rgba(99,102,241,0.2);
   }
   .pipeline-label {
-    font-size: 12px; font-weight: 800; color: #e2e8f0;
-    margin-bottom: 4px; letter-spacing: -0.01em;
+    font-size: 11px; font-weight: 800; color: #e2e8f0;
+    margin-bottom: 3px; letter-spacing: -0.01em;
   }
   .pipeline-sub {
-    font-size: 10px; color: #64748b; line-height: 1.4;
+    font-size: 9px; color: #64748b; line-height: 1.4;
   }
   .pipeline-arrow {
-    display: flex; align-items: center; padding: 0 4px;
+    color: #6366f1; font-size: 18px; opacity: 0.5;
     flex-shrink: 0;
   }
+  .pipeline-loop-note {
+    margin-top: 16px; padding: 12px 16px;
+    background: rgba(99, 102, 241, 0.06);
+    border: 1px dashed rgba(99, 102, 241, 0.25);
+    border-radius: 10px;
+    font-size: 12px; color: #94a3b8; line-height: 1.6;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .pipeline-loop-note span { font-size: 16px; flex-shrink: 0; }
 `
