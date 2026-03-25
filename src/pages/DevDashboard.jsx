@@ -852,7 +852,7 @@ const devStyles = `
   .vault-link:hover { background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.5); }
 
   /* ── Body Layout ── */
-  .dash-body { display: flex; min-height: calc(100vh - 71px); }
+  .dash-body { display: flex; height: calc(100vh - 71px); overflow: hidden; }
 
   /* ── Phase Sidebar ── */
   .phase-sidebar {
@@ -897,7 +897,7 @@ const devStyles = `
   .last-updated { font-size: 10px; color: #334155; padding: 12px 10px 0; text-align: center; }
 
   /* ── Split Task Area ── */
-  .task-area-split { flex: 1; display: flex; max-height: calc(100vh - 71px); }
+  .task-area-split { flex: 1; display: flex; height: 100%; overflow: hidden; }
   .task-list-pane {
     width: 50%; min-width: 0; padding: 20px 16px; overflow-y: auto;
     border-right: 1px solid rgba(51, 65, 85, 0.3);
