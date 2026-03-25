@@ -7,6 +7,7 @@ import WritingSamples from './pages/WritingSamples'
 import ContentLab from './pages/ContentLab'
 import VoiceProfile from './pages/VoiceProfile'
 import Settings from './pages/Settings'
+import DevDashboard from './pages/DevDashboard'
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/profile" element={<VoiceProfile />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
+      <Route path="/dev" element={<DevDashboard />} />
     </Routes>
   )
 }

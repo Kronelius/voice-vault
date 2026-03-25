@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
 const PASSCODE = '1234'
 const PIN_LENGTH = 4
 
 export default function PasswordGate({ children }) {
+  const location = useLocation()
   const [unlocked, setUnlocked] = useState(
     () => sessionStorage.getItem('vv_unlocked') === 'true'
   )
@@ -66,6 +68,9 @@ export default function PasswordGate({ children }) {
     if (error || success) return
     setDigits(prev => prev.slice(0, -1))
   }
+
+  // Dev dashboard has its own auth — skip Voice Vault PIN gate
+  if (location.pathname.startsWith('/dev')) return children
 
   if (unlocked) return children
 
